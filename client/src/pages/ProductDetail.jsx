@@ -1,0 +1,250 @@
+import { useState } from "react";
+import { Star, ShoppingCart, ArrowLeft, Shield, Zap } from "lucide-react";
+
+const BatmanProductDetail = () => {
+  const [quantity, setQuantity] = useState(1);
+  const [selectedImage, setSelectedImage] = useState(0);
+
+  // Mock product data
+  const product = {
+    _id: "1",
+    name: "Advanced Tactical Grappling Hook",
+    category: "Tactical Equipment",
+    price: 1299.99,
+    originalPrice: 1599.99,
+    description:
+      "Military-grade titanium construction with quantum-encrypted targeting system. Features retractable carbon fiber cable rated for 2000lbs, silent deployment mechanism, and integrated GPS tracking. Essential equipment for urban reconnaissance and vertical infiltration missions.",
+    rating: { average: 4.8, count: 127 },
+    stock: 3,
+    inStock: true,
+    images: [
+      { url: "/api/placeholder/500/500" },
+      { url: "/api/placeholder/500/500" },
+      { url: "/api/placeholder/500/500" },
+    ],
+    tags: ["Tactical", "Stealth", "Professional", "Military-Grade"],
+  };
+
+  const isAuthenticated = true; // Mock auth state
+  const formatPrice = (price) => `$${price.toFixed(2)}`;
+
+  const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      alert("Authentication required");
+      return;
+    }
+
+    if (!product.inStock) {
+      alert("Item currently unavailable");
+      return;
+    }
+
+    alert("Added to tactical loadout");
+  };
+
+  const handleBack = () => {
+    alert("Returning to equipment catalog");
+  };
+
+  return (
+    <div className="min-h-screen bg-gray-900 text-gray-100">
+      <div className="max-w-7xl mx-auto px-6 py-8">
+        {/* Back Button */}
+        <button
+          onClick={handleBack}
+          className="flex items-center space-x-2 text-gray-400 hover:text-yellow-400 mb-8 transition-colors"
+        >
+          <ArrowLeft className="h-4 w-4" />
+          <span className="text-sm tracking-wide">BACK TO ARSENAL</span>
+        </button>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
+          {/* Product Images */}
+          <div className="space-y-6">
+            <div className="aspect-square bg-gray-800 border border-gray-700 relative overflow-hidden">
+              <img
+                src={
+                  product.images[selectedImage]?.url ||
+                  "/api/placeholder/500/500"
+                }
+                alt={product.name}
+                className="w-full h-full object-cover opacity-90"
+              />
+              <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent"></div>
+            </div>
+
+            {product.images.length > 1 && (
+              <div className="flex space-x-3">
+                {product.images.map((image, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setSelectedImage(index)}
+                    className={`w-20 h-20 bg-gray-800 border-2 overflow-hidden transition-colors ${
+                      selectedImage === index
+                        ? "border-yellow-400"
+                        : "border-gray-700 hover:border-gray-600"
+                    }`}
+                  >
+                    <img
+                      src={image.url || "/api/placeholder/80/80"}
+                      alt={`View ${index + 1}`}
+                      className="w-full h-full object-cover opacity-80"
+                    />
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* Product Info */}
+          <div className="space-y-8">
+            {/* Header */}
+            <div>
+              <div className="flex items-center space-x-3 mb-3">
+                <Shield className="h-5 w-5 text-yellow-400" />
+                <span className="text-gray-400 text-sm tracking-widest uppercase">
+                  {product.category}
+                </span>
+              </div>
+              <h1 className="text-3xl font-light text-white mb-4 tracking-wide">
+                {product.name}
+              </h1>
+            </div>
+
+            {/* Rating */}
+            <div className="flex items-center space-x-4">
+              <div className="flex items-center space-x-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-4 w-4 ${
+                      i < Math.floor(product.rating.average)
+                        ? "text-yellow-400 fill-current"
+                        : "text-gray-600"
+                    }`}
+                  />
+                ))}
+              </div>
+              <span className="text-gray-400 text-sm">
+                ({product.rating.count} field reports)
+              </span>
+            </div>
+
+            {/* Price */}
+            <div className="flex items-baseline space-x-4">
+              <span className="text-3xl font-light text-white">
+                {formatPrice(product.price)}
+              </span>
+              {product.originalPrice && (
+                <span className="text-lg text-gray-500 line-through">
+                  {formatPrice(product.originalPrice)}
+                </span>
+              )}
+            </div>
+
+            {/* Description */}
+            <div className="border-t border-gray-800 pt-6">
+              <h3 className="text-lg font-medium mb-4 text-yellow-400 tracking-wide">
+                SPECIFICATIONS
+              </h3>
+              <p className="text-gray-300 leading-relaxed">
+                {product.description}
+              </p>
+            </div>
+
+            {/* Quantity & Stock */}
+            <div className="grid grid-cols-2 gap-6 py-6 border-y border-gray-800">
+              <div>
+                <label className="block text-gray-400 text-sm mb-3 tracking-wide uppercase">
+                  Quantity
+                </label>
+                <select
+                  value={quantity}
+                  onChange={(e) => setQuantity(Number.parseInt(e.target.value))}
+                  className="w-full bg-gray-800 border border-gray-700 text-gray-100 px-4 py-3 focus:border-yellow-400 focus:outline-none transition-colors"
+                  disabled={!product.inStock}
+                >
+                  {[...Array(Math.min(product.stock, 10))].map((_, i) => (
+                    <option key={i + 1} value={i + 1}>
+                      {i + 1}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              <div>
+                <span className="block text-gray-400 text-sm mb-3 tracking-wide uppercase">
+                  Availability
+                </span>
+                <div className="flex items-center space-x-2 mt-3">
+                  <div
+                    className={`w-2 h-2 rounded-full ${
+                      product.inStock ? "bg-green-400" : "bg-red-400"
+                    }`}
+                  ></div>
+                  <span
+                    className={`text-sm ${
+                      product.inStock ? "text-green-400" : "text-red-400"
+                    }`}
+                  >
+                    {product.inStock
+                      ? `${product.stock} units ready`
+                      : "Currently unavailable"}
+                  </span>
+                </div>
+              </div>
+            </div>
+
+            {/* Add to Cart */}
+            <button
+              onClick={handleAddToCart}
+              disabled={!product.inStock}
+              className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-medium py-4 px-6 tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
+            >
+              <ShoppingCart className="h-5 w-5" />
+              <span>ADD TO LOADOUT</span>
+            </button>
+
+            {/* Tags */}
+            {product.tags && product.tags.length > 0 && (
+              <div>
+                <h3 className="text-gray-400 text-sm mb-4 tracking-wide uppercase">
+                  Classifications
+                </h3>
+                <div className="flex flex-wrap gap-2">
+                  {product.tags.map((tag, index) => (
+                    <span
+                      key={index}
+                      className="px-3 py-1 bg-gray-800 border border-gray-700 text-gray-300 text-xs tracking-wide uppercase"
+                    >
+                      {tag}
+                    </span>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Additional Info */}
+            <div className="bg-gray-800/50 border border-gray-700 p-6 mt-8">
+              <div className="flex items-start space-x-3">
+                <Zap className="h-5 w-5 text-yellow-400 mt-1 flex-shrink-0" />
+                <div>
+                  <h4 className="text-white font-medium mb-2">
+                    Mission Critical Equipment
+                  </h4>
+                  <p className="text-gray-400 text-sm">
+                    All tactical gear undergoes rigorous field testing and meets
+                    Wayne Enterprises' highest quality standards. Backed by our
+                    lifetime replacement guarantee.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+export default BatmanProductDetail;
