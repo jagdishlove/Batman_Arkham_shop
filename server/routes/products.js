@@ -1,10 +1,11 @@
 import express from "express";
 import Product from "../models/Product.js";
+import { authenticate, authorizeAdmin } from "../middleware/auth.js";
 
 const router = express.Router();
 
 // Get all products (no filters, no pagination)
-router.get("/", async (req, res) => {
+router.get("/", authenticate, async (req, res) => {
   try {
     const products = await Product.find({ isActive: true });
     res.json({
@@ -21,7 +22,7 @@ router.get("/", async (req, res) => {
 });
 
 // Get single product
-router.get("/:id", async (req, res) => {
+router.get("/:id", authenticate, async (req, res) => {
   try {
     const product = await Product.findById(req.params.id);
 
@@ -46,7 +47,7 @@ router.get("/:id", async (req, res) => {
 });
 
 // Get featured products
-router.get("/featured/list", async (req, res) => {
+router.get("/featured/list", authenticate, async (req, res) => {
   try {
     const limit = Number.parseInt(req.query.limit) || 8;
     const products = await Product.find({ isActive: true })
@@ -67,7 +68,7 @@ router.get("/featured/list", async (req, res) => {
 });
 
 // Admin: Create product
-router.post("/create", async (req, res) => {
+router.post("/create", authenticate, authorizeAdmin, async (req, res) => {
   try {
     const {
       name,
