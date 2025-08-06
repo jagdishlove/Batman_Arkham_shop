@@ -8,7 +8,7 @@ import {
   Star,
   Sparkles,
 } from "lucide-react";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.svg"; // Assuming you have a logo image
 import useAuthStore from "../../store/authStore";
@@ -21,7 +21,6 @@ const useCart = () => ({
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const [searchQuery, setSearchQuery] = useState("");
   const [scrolled, setScrolled] = useState(false);
   const navigate = useNavigate();
 
@@ -29,19 +28,61 @@ const Header = () => {
   const items = useCartStore((state) => state.items);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Close menu when route changes
   useEffect(() => {
+    return () => setIsMenuOpen(false);
+  }, [navigate]);
+
+  // Handle scroll effect with debounce
+  useEffect(() => {
+    let timeoutId;
     const handleScroll = () => {
-      setScrolled(window.scrollY > 20);
+      if (timeoutId) clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => {
+        setScrolled(window.scrollY > 20);
+      }, 100);
     };
+
     window.addEventListener("scroll", handleScroll);
-    return () => window.removeEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+      if (timeoutId) clearTimeout(timeoutId);
+    };
   }, []);
 
-  const handleLogout = () => {
+  // Close menu when clicking outside
+  useEffect(() => {
+    const handleClickOutside = (event) => {
+      if (isMenuOpen && !event.target.closest(".mobile-menu")) {
+        setIsMenuOpen(false);
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, [isMenuOpen]);
+
+  const handleLogout = useCallback(() => {
     logout();
-    batmanToast.success("You have been logged out."); // Optional batmanToast
-    navigate("/login"); // Redirect to login or landing page
+    setIsMenuOpen(false);
+    batmanToast.success("You have been logged out.");
+    navigate("/login");
+  }, [logout, navigate]);
+
+  const handleMenuItemClick = () => {
+    setIsMenuOpen(false);
   };
+
+  // Update mobile menu with click handler
+  const MobileMenuItem = ({ to, children }) => (
+    <Link
+      to={to}
+      className="block text-white hover:text-purple-400 font-medium transition-colors duration-300 py-2"
+      onClick={handleMenuItemClick}
+    >
+      {children}
+    </Link>
+  );
 
   return (
     <>
@@ -147,11 +188,12 @@ const Header = () => {
 
                       <button
                         onClick={handleLogout}
-                        className="w-[90%] m-auto block px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-200  rounded-lg"
+                        className="w-full group flex items-center gap-3 px-6 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-300"
                       >
-                        <div className="flex items-center gap-3">
-                          <LogOut className="h-4 w-4" />
-                          Logout
+                        <div className="relative flex items-center gap-3 w-full">
+                          <LogOut className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
+                          <span className="font-medium">Sign Out</span>
+                          <div className="absolute inset-0 bg-gradient-to-r from-red-500/0 via-red-500/5 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 rounded-lg"></div>
                         </div>
                       </button>
                     </div>
@@ -179,8 +221,12 @@ const Header = () => {
 
             {/* Mobile menu button with animation */}
             <button
-              onClick={() => setIsMenuOpen(!isMenuOpen)}
-              className="md:hidden p-3 rounded-full bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-300 hover:scale-110"
+              onClick={(e) => {
+                e.stopPropagation();
+                setIsMenuOpen(!isMenuOpen);
+              }}
+              className="md:hidden p-3 rounded-full bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-300 hover:scale-110 focus:outline-none focus:ring-2 focus:ring-purple-500"
+              aria-label="Toggle menu"
             >
               <Menu
                 className={`h-6 w-6 text-white transition-transform duration-300 ${
@@ -190,61 +236,103 @@ const Header = () => {
             </button>
           </div>
 
-          {/* Mobile menu with slide animation */}
+          {/* Mobile Menu */}
           <div
-            className={`md:hidden overflow-hidden transition-all duration-500 ${
-              isMenuOpen ? "max-h-96 opacity-100" : "max-h-0 opacity-0"
+            className={`mobile-menu fixed inset-x-0 top-20 md:hidden transition-all duration-300 transform ${
+              isMenuOpen
+                ? "translate-y-0 opacity-100 visible"
+                : "-translate-y-2 opacity-0 invisible"
             }`}
           >
-            <div className="py-6 border-t border-gray-700/50">
-              <div className="space-y-6">
-                <Link
-                  to="/products"
-                  className="block text-white hover:text-purple-400 font-medium transition-colors duration-300 py-2"
-                >
-                  Products
-                </Link>
-
-                {isAuthenticated ? (
-                  <>
-                    <Link
-                      to="/cart"
-                      className="flex items-center space-x-3 text-white hover:text-purple-400 transition-colors duration-300 py-2"
-                    >
-                      <ShoppingCart className="h-5 w-5" />
-                      <span>Cart ({itemCount})</span>
-                    </Link>
-                    <Link
-                      to="/orders"
-                      className="block text-white hover:text-purple-400 font-medium transition-colors duration-300 py-2"
-                    >
-                      My Orders
-                    </Link>
-                    <button
-                      onClick={handleLogout}
-                      className="flex items-center space-x-3 text-white hover:text-red-400 transition-colors duration-300 py-2"
-                    >
-                      <LogOut className="h-5 w-5" />
-                      <span>Logout</span>
-                    </button>
-                  </>
-                ) : (
-                  <div className="space-y-4">
-                    <Link
-                      to="/login"
-                      className="block text-white hover:text-purple-400 font-medium transition-colors duration-300 py-2"
-                    >
-                      Login
-                    </Link>
-                    <Link
-                      to="/signup"
-                      className="relative inline-block px-6 py-3 font-medium text-white transition-all duration-300"
-                    >
-                      <span className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full"></span>
-                      <span className="relative">Sign Up</span>
-                    </Link>
+            <div className="bg-gray-900/95 backdrop-blur-xl border-t border-gray-800 shadow-2xl">
+              <div className="max-w-7xl mx-auto px-4 py-3">
+                {/* Add User Profile Section at Top */}
+                {isAuthenticated && (
+                  <div className="mb-6 p-4 border-b border-gray-800">
+                    <div className="flex items-center gap-3">
+                      <div className="p-3 rounded-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/20">
+                        <User className="h-6 w-6 text-purple-400" />
+                      </div>
+                      <div>
+                        <h3 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
+                          {user?.name || "Agent"}
+                        </h3>
+                        <p className="text-sm text-gray-400">{user?.email}</p>
+                      </div>
+                    </div>
                   </div>
                 )}
+
+                <nav className="space-y-4">
+                  <MobileMenuItem to="/">
+                    <div className="flex items-center gap-3">
+                      <Zap className="h-5 w-5" />
+                      <span>Home</span>
+                    </div>
+                  </MobileMenuItem>
+
+                  <MobileMenuItem to="/products">
+                    <div className="flex items-center gap-3">
+                      <Star className="h-5 w-5" />
+                      <span>Products</span>
+                    </div>
+                  </MobileMenuItem>
+
+                  {isAuthenticated ? (
+                    <>
+                      <MobileMenuItem to="/cart">
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-3">
+                            <ShoppingCart className="h-5 w-5" />
+                            <span>Cart</span>
+                          </div>
+                          {itemCount > 0 && (
+                            <span className="px-2.5 py-0.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold rounded-full">
+                              {itemCount}
+                            </span>
+                          )}
+                        </div>
+                      </MobileMenuItem>
+
+                      <MobileMenuItem to="/orders">
+                        <div className="flex items-center gap-3">
+                          <Star className="h-5 w-5" />
+                          <span>My Orders</span>
+                        </div>
+                      </MobileMenuItem>
+
+                      <button
+                        onClick={handleLogout}
+                        className="w-full group flex items-center gap-3 px-4 py-3 text-red-400 hover:text-red-300 transition-colors duration-300 relative overflow-hidden"
+                      >
+                        <div className="absolute inset-0 bg-gradient-to-r from-red-950/0 via-red-950/50 to-red-950/0 opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+                        <div className="relative flex items-center gap-3">
+                          <LogOut className="h-5 w-5 group-hover:rotate-12 transition-transform duration-300" />
+                          <span className="font-medium tracking-wide">
+                            SIGN OUT
+                          </span>
+                        </div>
+                      </button>
+                    </>
+                  ) : (
+                    <div className="space-y-3 pt-4 mt-4 border-t border-gray-800">
+                      <MobileMenuItem to="/login">
+                        <div className="flex items-center gap-3">
+                          <User className="h-5 w-5" />
+                          <span>Login</span>
+                        </div>
+                      </MobileMenuItem>
+
+                      <Link
+                        to="/signup"
+                        onClick={handleMenuItemClick}
+                        className="block w-full px-4 py-3 text-center font-medium text-white bg-gradient-to-r from-purple-600 to-blue-600 rounded-lg hover:opacity-90 transition-all duration-300 hover:scale-105"
+                      >
+                        Sign Up
+                      </Link>
+                    </div>
+                  )}
+                </nav>
               </div>
             </div>
           </div>
