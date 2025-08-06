@@ -1,5 +1,5 @@
 import { useMutation } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import { batmanToast } from "@/utils/toast";
 
 /**
  * @param {Function} mutationFn - Your actual API call (e.g., post(...))
@@ -18,14 +18,14 @@ export const useStandardMutation = (
   return useMutation({
     mutationFn,
     onSuccess: (data, variables, context) => {
-      toast.success(successMsg);
+      batmanToast.success(successMsg);
       if (sideEffects) sideEffects(data);
       if (onSuccess) onSuccess(data, variables, context);
     },
     onError: (error, variables, context) => {
       const message =
         error?.response?.data?.message || error?.message || errorMsg;
-      toast.error(message);
+      batmanToast.error(message);
       if (onError) onError(error, variables, context);
     },
   });

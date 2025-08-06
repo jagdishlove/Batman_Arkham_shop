@@ -7,7 +7,7 @@ import api from "@/lib/api"; // <-- use your custom axios instance
 import useAuthStore from "../store/authStore";
 import { post } from "../lib/http";
 import { useStandardMutation } from "../lib/useStandardMutation";
-import toast from "react-hot-toast";
+import { batmanToast } from "@/utils/toast";
 
 const loginApi = async ({ email, password }) => {
   const res = await api.post("/auth/login", { email, password });

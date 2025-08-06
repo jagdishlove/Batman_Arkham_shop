@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import api from "@/lib/api"
 import useAuthStore from "@/store/authStore"
-import toast from "react-hot-toast"
+import { batmanToast } from "@/utils/toast";
 
 const ordersApi = {
   getOrders: async (page = 1, limit = 10) => {
@@ -48,10 +48,10 @@ export const useCreateOrder = () => {
     onSuccess: () => {
       queryClient.invalidateQueries({ queryKey: ["orders"] })
       queryClient.invalidateQueries({ queryKey: ["cart"] })
-      toast.success("Order created successfully!")
+      batmanToast.success("Order created successfully!")
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to create order")
+      batmanToast.error(error.response?.data?.message || "Failed to create order")
     },
   })
 }

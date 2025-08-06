@@ -5,7 +5,7 @@ import { Star, ShoppingCart } from "lucide-react"
 import { formatPrice } from "@/lib/utils"
 import { useAddToCart } from "@/hooks/useCart"
 import useAuthStore from "@/store/authStore"
-import toast from "react-hot-toast"
+import { batmanToast } from "@/utils/toast";
 
 const ProductCard = ({ product }) => {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated)
@@ -15,12 +15,12 @@ const ProductCard = ({ product }) => {
     e.preventDefault()
 
     if (!isAuthenticated) {
-      toast.error("Please login to add items to cart")
+      batmanToast.error("Please login to add items to cart")
       return
     }
 
     if (!product.inStock) {
-      toast.error("Product is out of stock")
+      batmanToast.error("Product is out of stock")
       return
     }
 

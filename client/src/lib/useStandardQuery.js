@@ -1,5 +1,5 @@
 import { useQuery } from "@tanstack/react-query";
-import { toast } from "react-hot-toast";
+import { batmanToast } from "@/utils/toast";
 
 /**
  * @param {Array} queryKey
@@ -25,7 +25,7 @@ export const useStandardQuery = (
     onError: (error) => {
       const message =
         error?.response?.data?.message || error?.message || errorMsg;
-      toast.error(message);
+      batmanToast.error(message);
       if (onError) onError(error);
     },
     ...restOptions,

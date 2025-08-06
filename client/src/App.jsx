@@ -1,7 +1,6 @@
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { Toaster } from "react-hot-toast";
 import { queryClient } from "@/lib/queryClient";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
@@ -16,6 +15,7 @@ import OrderConfirmation from "@/pages/OrderConfirmation";
 import Orders from "@/pages/Orders";
 import ScrollToTop from "./components/UI/ScrollToTop";
 import ErrorPage from "./pages/ErrorPage";
+import ToastContainer from "./components/UI/ToastContainer";
 
 function App() {
   return (
@@ -43,23 +43,7 @@ function App() {
           </main>
           <Footer />
         </div>
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: "#363636",
-              color: "#fff",
-            },
-            success: {
-              duration: 3000,
-              theme: {
-                primary: "green",
-                secondary: "black",
-              },
-            },
-          }}
-        />
+        <ToastContainer />
       </Router>
       <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>

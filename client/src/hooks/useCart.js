@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import api from "@/lib/api"
 import useAuthStore from "@/store/authStore"
-import toast from "react-hot-toast"
+import { batmanToast } from "@/utils/toast";
 
 const cartApi = {
   getCart: async () => {
@@ -48,10 +48,10 @@ export const useAddToCart = () => {
     mutationFn: cartApi.addToCart,
     onSuccess: (cart) => {
       queryClient.setQueryData(["cart"], cart)
-      toast.success("Added to cart!")
+      batmanToast.success("Added to cart!")
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to add to cart")
+      batmanToast.error(error.response?.data?.message || "Failed to add to cart")
     },
   })
 }
@@ -65,7 +65,7 @@ export const useUpdateCart = () => {
       queryClient.setQueryData(["cart"], cart)
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to update cart")
+      batmanToast.error(error.response?.data?.message || "Failed to update cart")
     },
   })
 }
@@ -77,10 +77,10 @@ export const useRemoveFromCart = () => {
     mutationFn: cartApi.removeFromCart,
     onSuccess: (cart) => {
       queryClient.setQueryData(["cart"], cart)
-      toast.success("Removed from cart")
+      batmanToast.success("Removed from cart")
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to remove from cart")
+      batmanToast.error(error.response?.data?.message || "Failed to remove from cart")
     },
   })
 }
@@ -92,10 +92,10 @@ export const useClearCart = () => {
     mutationFn: cartApi.clearCart,
     onSuccess: (cart) => {
       queryClient.setQueryData(["cart"], cart)
-      toast.success("Cart cleared")
+      batmanToast.success("Cart cleared")
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Failed to clear cart")
+      batmanToast.error(error.response?.data?.message || "Failed to clear cart")
     },
   })
 }

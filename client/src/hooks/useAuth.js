@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query"
 import api from "@/lib/api"
 import useAuthStore from "@/store/authStore"
-import toast from "react-hot-toast"
+import { batmanToast } from "@/utils/toast";
 
 // Auth API functions
 const authApi = {
@@ -31,10 +31,10 @@ export const useLogin = () => {
       const { user, token } = data
       setAuth(user, token)
       queryClient.setQueryData(["auth", "profile"], user)
-      toast.success("Login successful!")
+      batmanToast.success("Login successful!")
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Login failed")
+      batmanToast.error(error.response?.data?.message || "Login failed")
     },
   })
 }
@@ -49,10 +49,10 @@ export const useRegister = () => {
       const { user, token } = data
       setAuth(user, token)
       queryClient.setQueryData(["auth", "profile"], user)
-      toast.success("Registration successful!")
+      batmanToast.success("Registration successful!")
     },
     onError: (error) => {
-      toast.error(error.response?.data?.message || "Registration failed")
+      batmanToast.error(error.response?.data?.message || "Registration failed")
     },
   })
 }

@@ -2,7 +2,7 @@ import { ShoppingBag, Truck, Shield, Zap, Eye, Moon, Star } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
-import toast from "react-hot-toast";
+import { batmanToast } from "@/utils/toast";
 
 // LoadingSpinner with aria and role for accessibility
 const LoadingSpinner = ({ size }) => (
@@ -75,7 +75,7 @@ const Home = () => {
 
   const becomeMember = () => {
     if (isAuthenticated) {
-      toast.success("You are already a Knight of Gotham!");
+      batmanToast.success("You are already a Knight of Gotham!");
     } else {
       navigate("/signup");
     }
