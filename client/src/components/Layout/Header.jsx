@@ -12,7 +12,8 @@ import { useState, useEffect } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.svg"; // Assuming you have a logo image
 import useAuthStore from "../../store/authStore";
-import toast from "react-hot-toast";
+import { batmanToast } from "@/utils/toast";
+import useCartStore from "../../store/cartStore";
 
 const useCart = () => ({
   data: { items: [{ quantity: 2 }, { quantity: 1 }] },
@@ -25,10 +26,8 @@ const Header = () => {
   const navigate = useNavigate();
 
   const { user, isAuthenticated, logout } = useAuthStore();
-  const { data: cart } = useCart();
-
-  const cartItemsCount =
-    cart?.items?.reduce((sum, item) => sum + item.quantity, 0) || 0;
+  const items = useCartStore((state) => state.items);
+  const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -40,7 +39,7 @@ const Header = () => {
 
   const handleLogout = () => {
     logout();
-    toast.success("You have been logged out."); // Optional toast
+    batmanToast.success("You have been logged out."); // Optional batmanToast
     navigate("/login"); // Redirect to login or landing page
   };
 
@@ -112,9 +111,9 @@ const Header = () => {
                   <Link to="/cart" className="relative group">
                     <div className="relative p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-300 hover:scale-110">
                       <ShoppingCart className="h-6 w-6 text-white group-hover:text-purple-400 transition-colors" />
-                      {cartItemsCount > 0 && (
+                      {itemCount > 0 && (
                         <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-bounce">
-                          {cartItemsCount}
+                          {itemCount}
                         </span>
                       )}
                     </div>
@@ -213,7 +212,7 @@ const Header = () => {
                       className="flex items-center space-x-3 text-white hover:text-purple-400 transition-colors duration-300 py-2"
                     >
                       <ShoppingCart className="h-5 w-5" />
-                      <span>Cart ({cartItemsCount})</span>
+                      <span>Cart ({itemCount})</span>
                     </Link>
                     <Link
                       to="/orders"
