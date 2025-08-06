@@ -154,10 +154,6 @@ export default function Products() {
     currentPage * itemsPerPage
   );
 
-  const handleAddToCart = (product) => {
-    console.log("Add to cart:", product.name);
-  };
-
   return (
     <div className="min-h-screen bg-black text-white px-6 py-10 max-w-6xl mx-auto">
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
@@ -215,7 +211,6 @@ export default function Products() {
         {paginatedProducts.map((product) => (
           <div
             key={product._id}
-            onClick={() => navigate(`/products/${product._id}`)}
             className="bg-gray-900 border border-gray-800 rounded-xl p-6 group hover:scale-105 transition-transform cursor-pointer"
           >
             <img
@@ -247,12 +242,12 @@ export default function Products() {
             <button
               onClick={(e) => {
                 e.stopPropagation();
-                handleAddToCart(product);
+                navigate(`/products/${product._id}`);
               }}
-              className="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 bg-yellow-400 text-black rounded-md font-bold hover:bg-yellow-300 transition"
+              className="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 bg-purple-600 text-white rounded-md font-bold hover:bg-purple-700 transition"
             >
-              <ShoppingCart className="w-4 h-4" />
-              Add to Cart
+              <Eye className="w-4 h-4" />
+              View Details
             </button>
           </div>
         ))}
