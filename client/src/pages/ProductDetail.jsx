@@ -1,11 +1,14 @@
 import { useState } from "react";
 import { Star, ShoppingCart, ArrowLeft, Shield, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import useCartStore from "../store/cartStore";
+import { batmanToast } from "@/utils/toast"; // Add toast for notifications
 
 const BatmanProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
   const navigate = useNavigate();
+  const addItem = useCartStore((state) => state.addItem);
 
   // Mock product data
   const product = {
@@ -32,16 +35,17 @@ const BatmanProductDetail = () => {
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {
-      alert("Authentication required");
+      batmanToast.error("Authentication required");
       return;
     }
 
     if (!product.inStock) {
-      alert("Item currently unavailable");
+      batmanToast.error("Item currently unavailable");
       return;
     }
 
-    alert("Added to tactical loadout");
+    addItem(product, quantity);
+    batmanToast.success(`${product.name} added to your loadout`);
   };
 
   const handleBack = () => {
