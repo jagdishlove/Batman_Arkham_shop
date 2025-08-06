@@ -1,8 +1,24 @@
 "use client";
 
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import useCartStore from "../store/cartStore";
+import { batmanToast } from "../utils/toast";
+import axios from "axios";
+import { Shield, Lock } from "lucide-react";
 
 const BatmanCheckout = () => {
+  const navigate = useNavigate();
+  const [isProcessing, setIsProcessing] = useState(false);
+  const {
+    items,
+    getCartTotal,
+    getTaxAmount,
+    getShippingCost,
+    getFinalTotal,
+    clearCart,
+  } = useCartStore();
+
   const [shippingAddress, setShippingAddress] = useState({
     name: "",
     street: "",
@@ -14,29 +30,11 @@ const BatmanCheckout = () => {
 
   const [paymentMethod, setPaymentMethod] = useState("credit_card");
 
-  // Mock cart data
-  const cart = {
-    items: [
-      {
-        productId: {
-          _id: "1",
-          name: "Tactical Grappling Hook",
-          images: [{ url: "/api/placeholder/50/50" }],
-        },
-        quantity: 1,
-        price: 299.99,
-      },
-      {
-        productId: {
-          _id: "2",
-          name: "Kevlar Body Armor",
-          images: [{ url: "/api/placeholder/50/50" }],
-        },
-        quantity: 1,
-        price: 1299.99,
-      },
-    ],
-  };
+  // Calculate totals using cart store methods
+  const subtotal = getCartTotal();
+  const tax = getTaxAmount();
+  const shipping = getShippingCost();
+  const total = getFinalTotal();
 
   const handleAddressChange = (e) => {
     setShippingAddress({
@@ -45,20 +43,75 @@ const BatmanCheckout = () => {
     });
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    alert("Order placed! The Dark Knight approves.");
+
+    if (
+      !shippingAddress.name ||
+      !shippingAddress.street ||
+      !shippingAddress.city
+    ) {
+      batmanToast.error("Please fill in all required fields");
+      return;
+    }
+
+    setIsProcessing(true);
+    const loadingToast = batmanToast.loading(
+      "Processing your equipment order..."
+    );
+
+    try {
+      const orderData = {
+        items: items.map((item) => ({
+          productId: item._id,
+          quantity: item.quantity,
+          price: item.price,
+        })),
+        shippingAddress,
+        paymentMethod,
+        subtotal,
+        tax,
+        shipping,
+        total,
+      };
+
+      const response = await axios.post("/api/orders", orderData);
+
+      // Clear cart after successful order
+      clearCart();
+
+      // Update toast and redirect
+      batmanToast.success("Mission equipment secured!", { id: loadingToast });
+      navigate(`/order-confirmation/${response.data._id}`);
+    } catch (error) {
+      batmanToast.error(
+        error.response?.data?.message || "Equipment acquisition failed",
+        { id: loadingToast }
+      );
+    } finally {
+      setIsProcessing(false);
+    }
   };
 
-  const subtotal = cart.items.reduce(
-    (sum, item) => sum + item.price * item.quantity,
-    0
-  );
-  const tax = subtotal * 0.1;
-  const shipping = subtotal > 100 ? 0 : 10;
-  const total = subtotal + tax + shipping;
-
   const formatPrice = (price) => `$${price.toFixed(2)}`;
+
+  // Add this near the start of your component
+  if (items.length === 0) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center">
+          <Shield className="w-16 h-16 text-gray-600 mx-auto mb-4" />
+          <h2 className="text-2xl font-light mb-4">NO EQUIPMENT SELECTED</h2>
+          <button
+            onClick={() => navigate("/products")}
+            className="px-6 py-2 bg-yellow-400 text-black hover:bg-yellow-300 transition-colors"
+          >
+            RETURN TO ARMORY
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div
@@ -213,17 +266,18 @@ const BatmanCheckout = () => {
 
                 {/* Order Items */}
                 <div className="space-y-6 mb-8">
-                  {cart.items.map((item) => (
-                    <div
-                      key={item.productId._id}
-                      className="flex items-center space-x-4"
-                    >
+                  {items.map((item) => (
+                    <div key={item._id} className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-gray-800 border border-gray-700 flex items-center justify-center">
-                        <div className="w-6 h-6 bg-yellow-400/20"></div>
+                        <img
+                          src={item.image}
+                          alt={item.name}
+                          className="w-full h-full object-cover"
+                        />
                       </div>
                       <div className="flex-1">
                         <p className="text-gray-200 text-sm tracking-wide">
-                          {item.productId.name}
+                          {item.name}
                         </p>
                         <p className="text-gray-500 text-xs">
                           QTY: {item.quantity}
@@ -266,9 +320,24 @@ const BatmanCheckout = () => {
                 <button
                   type="button"
                   onClick={handleSubmit}
-                  className="w-full mt-8 bg-yellow-400 hover:bg-yellow-300 text-black font-light tracking-widest py-4 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-black"
+                  disabled={isProcessing || items.length === 0}
+                  className={`w-full mt-8 flex items-center justify-center gap-2 ${
+                    isProcessing || items.length === 0
+                      ? "bg-gray-600 cursor-not-allowed"
+                      : "bg-yellow-400 hover:bg-yellow-300"
+                  } text-black font-light tracking-widest py-4 transition-colors duration-300 focus:outline-none focus:ring-2 focus:ring-yellow-400 focus:ring-offset-2 focus:ring-offset-black`}
                 >
-                  PLACE ORDER
+                  {isProcessing ? (
+                    <>
+                      <div className="w-5 h-5 border-2 border-black border-t-transparent rounded-full animate-spin" />
+                      PROCESSING...
+                    </>
+                  ) : (
+                    <>
+                      <Lock className="w-5 h-5" />
+                      PLACE ORDER
+                    </>
+                  )}
                 </button>
               </div>
             </div>

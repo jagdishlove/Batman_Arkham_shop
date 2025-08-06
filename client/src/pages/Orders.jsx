@@ -1,11 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Package, Eye, ArrowLeft, ArrowRight } from "lucide-react";
+import { Package, Shield, ArrowLeft, ArrowRight, Eye } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import useAuthStore from "../store/authStore";
+import { batmanToast } from "../utils/toast";
 
 const BatmanOrders = () => {
+  const navigate = useNavigate();
+  const { isAuthenticated, user } = useAuthStore();
   const [currentPage, setCurrentPage] = useState(1);
-  const isAuthenticated = true; // Mock authenticated state
 
   // Mock orders data
   const ordersData = {
@@ -88,18 +92,53 @@ const BatmanOrders = () => {
   const formatPrice = (price) => `$${price.toFixed(2)}`;
   const formatDate = (date) => new Date(date).toLocaleDateString();
 
+  // If not authenticated, show login prompt
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <Package className="h-16 w-16 text-gray-500 mx-auto mb-4" />
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <Shield className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
           <h2 className="text-2xl font-light text-white mb-2">ACCESS DENIED</h2>
-          <p className="text-gray-400 mb-6">
-            Authentication required to view orders
+          <p className="text-gray-400 mb-8">
+            Authentication required to access mission history
           </p>
-          <button className="px-6 py-2 bg-yellow-400 text-black font-medium tracking-wide hover:bg-yellow-300 transition-colors">
-            LOGIN
-          </button>
+          <div className="space-y-4">
+            <button
+              onClick={() => navigate("/login")}
+              className="w-full px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-medium tracking-wide hover:opacity-90 transition-all duration-300"
+            >
+              LOGIN TO CONTINUE
+            </button>
+            <Link
+              to="/products"
+              className="block w-full px-6 py-3 bg-gray-800 text-white font-medium tracking-wide hover:bg-gray-700 transition-colors"
+            >
+              RETURN TO ARMORY
+            </Link>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  // If authenticated but no orders
+  if (ordersData?.orders?.length === 0) {
+    return (
+      <div className="min-h-screen bg-black text-white flex items-center justify-center">
+        <div className="text-center max-w-md mx-auto p-6">
+          <Package className="h-16 w-16 text-yellow-400 mx-auto mb-4" />
+          <h2 className="text-2xl font-light text-white mb-2">
+            NO MISSIONS FOUND
+          </h2>
+          <p className="text-gray-400 mb-8">
+            Start your vigilante journey by exploring our equipment
+          </p>
+          <Link
+            to="/products"
+            className="inline-block px-6 py-3 bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-medium tracking-wide hover:opacity-90 transition-all duration-300"
+          >
+            BROWSE EQUIPMENT
+          </Link>
         </div>
       </div>
     );
@@ -107,23 +146,6 @@ const BatmanOrders = () => {
 
   const orders = ordersData?.orders || [];
   const pagination = ordersData?.pagination || {};
-
-  if (orders.length === 0) {
-    return (
-      <div className="min-h-screen bg-gray-900 text-gray-100 flex items-center justify-center">
-        <div className="text-center">
-          <Package className="h-16 w-16 text-gray-500 mx-auto mb-4" />
-          <h2 className="text-2xl font-light text-white mb-2">
-            NO MISSIONS FOUND
-          </h2>
-          <p className="text-gray-400 mb-6">Start your vigilante journey</p>
-          <button className="px-6 py-2 bg-yellow-400 text-black font-medium tracking-wide hover:bg-yellow-300 transition-colors">
-            START SHOPPING
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   const getStatusColor = (status) => {
     const colors = {
@@ -280,3 +302,27 @@ const BatmanOrders = () => {
 };
 
 export default BatmanOrders;
+
+// {
+//   "orderNumber": "BAT-2024-004",
+//   "userId": "64f0eabc1234567890abcdef",
+//   "orderStatus": "pending",
+//   "paymentMethod": "credit_card",
+//   "items": [
+//     {
+//       "productId": "64f1d23ab45678cd9012abcd",
+//       "name": "Grappling Hook",
+//       "quantity": 1,
+//       "image": "/images/hook.jpg",
+//       "price": 899.99
+//     },
+//     {
+//       "productId": "64f1d23ab45678cd9012abce",
+//       "name": "Kevlar Armor",
+//       "quantity": 1,
+//       "image": "/images/armor.jpg",
+//       "price": 1099.99
+//     }
+//   ],
+//   "total": 1999.98
+// }

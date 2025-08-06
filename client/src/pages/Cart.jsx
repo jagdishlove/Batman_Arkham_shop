@@ -12,7 +12,7 @@ import {
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useCartStore from "../store/cartStore";
-import { batmanToast } from "@/utils/toast";// Adjust path as needed
+import { batmanToast } from "@/utils/toast"; // Adjust path as needed
 import useAuthStore from "../store/authStore";
 
 // Mock components and hooks
@@ -49,7 +49,6 @@ const Cart = () => {
   const handleUpdateQuantity = (productId, newQuantity) => {
     try {
       updateQuantity(productId, newQuantity);
-      batmanToast.success("Quantity updated");
     } catch (error) {
       batmanToast.error(error.message);
     }
@@ -164,23 +163,23 @@ const Cart = () => {
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         {/* Header */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6 mb-12">
+        <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-6 mb-8 sm:mb-12">
           <div>
-            <h1 className="text-4xl font-black mb-2">
+            <h1 className="text-3xl sm:text-4xl font-black mb-2">
               <span className="bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
                 EQUIPMENT
               </span>
-              <span className="text-gray-300 ml-3">STORAGE</span>
+              <span className="text-gray-300 ml-2 sm:ml-3">STORAGE</span>
             </h1>
-            <p className="text-gray-500 flex items-center gap-2 font-mono">
+            <p className="text-gray-500 flex items-center gap-2 font-mono text-sm">
               <Shield className="h-4 w-4" />
               {items.length} items in tactical storage
             </p>
           </div>
 
           <button
-            onClick={clearCart}
-            className={`group flex items-center gap-3 px-6 py-3 rounded-lg font-bold transition-all duration-300 ${
+            onClick={handleClearCart}
+            className={`group flex items-center gap-3 px-4 sm:px-6 py-2 sm:py-3 rounded-lg font-bold transition-all duration-300 text-sm sm:text-base ${
               showClearConfirm
                 ? "bg-red-600/20 border-2 border-red-500 text-red-400"
                 : "bg-gray-800/60 border border-gray-700 text-gray-400 hover:border-red-500/50 hover:text-red-400"
@@ -206,19 +205,19 @@ const Cart = () => {
             {items.map((item, index) => (
               <div
                 key={item._id}
-                className="group bg-gray-900/40 backdrop-blur-sm border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300"
+                className="group bg-gray-900/40 backdrop-blur-sm border border-gray-800 rounded-xl p-4 sm:p-6 hover:border-gray-700 transition-all duration-300"
               >
-                <div className="flex items-center gap-6">
+                <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
                   {/* Product Image */}
                   <div className="relative">
-                    <div className="w-20 h-20 bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
+                    <div className="w-full h-32 sm:w-20 sm:h-20 bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
                       <img
                         src={item.image}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />
                     </div>
-                    <div className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold">
+                    <div className="absolute top-2 right-2 sm:-top-2 sm:-right-2 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold">
                       #{index + 1}
                     </div>
                   </div>
@@ -242,44 +241,47 @@ const Cart = () => {
                     </div>
                   </div>
 
-                  {/* Quantity Controls */}
-                  <div className="flex items-center gap-3 bg-gray-800/60 rounded-lg p-2">
-                    <button
-                      onClick={() =>
-                        updateQuantity(item._id, item.quantity - 1)
-                      }
-                      disabled={item.quantity <= 1}
-                      className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:hover:bg-gray-700 transition-colors"
-                    >
-                      <Minus className="h-4 w-4 text-white" />
-                    </button>
+                  {/* Controls Section */}
+                  <div className="flex flex-row sm:flex-col justify-between items-center sm:items-end gap-4 mt-4 sm:mt-0">
+                    {/* Quantity Controls */}
+                    <div className="flex items-center gap-3 bg-gray-800/60 rounded-lg p-2">
+                      <button
+                        onClick={() =>
+                          handleUpdateQuantity(item._id, item.quantity - 1)
+                        }
+                        disabled={item.quantity <= 1}
+                        className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:hover:bg-gray-700 transition-colors"
+                      >
+                        <Minus className="h-4 w-4 text-white" />
+                      </button>
 
-                    <span className="w-12 text-center font-mono text-lg font-bold text-yellow-400">
-                      {item.quantity}
-                    </span>
+                      <span className="w-12 text-center font-mono text-lg font-bold text-yellow-400">
+                        {item.quantity}
+                      </span>
 
-                    <button
-                      onClick={() =>
-                        updateQuantity(item._id, item.quantity + 1)
-                      }
-                      disabled={item.quantity >= item.productId?.stock}
-                      className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:hover:bg-gray-700 transition-colors"
-                    >
-                      <Plus className="h-4 w-4 text-white" />
-                    </button>
-                  </div>
+                      <button
+                        onClick={() =>
+                          handleUpdateQuantity(item._id, item.quantity + 1)
+                        }
+                        disabled={item.quantity >= item.stock}
+                        className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:hover:bg-gray-700 transition-colors"
+                      >
+                        <Plus className="h-4 w-4 text-white" />
+                      </button>
+                    </div>
 
-                  {/* Price and Remove */}
-                  <div className="text-right min-w-0">
-                    <p className="text-xl font-black bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent">
-                      {formatPrice(item.price * item.quantity)}
-                    </p>
-                    <button
-                      onClick={() => removeItem(item._id)}
-                      className="mt-2 p-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-all duration-300 group"
-                    >
-                      <Trash2 className="h-4 w-4 group-hover:scale-110 transition-transform" />
-                    </button>
+                    {/* Price and Remove */}
+                    <div className="flex items-center sm:flex-col sm:items-end gap-4 sm:gap-2">
+                      <p className="text-xl font-black bg-gradient-to-r from-yellow-400 to-orange-500 bg-clip-text text-transparent order-1 sm:order-none">
+                        {formatPrice(item.price * item.quantity)}
+                      </p>
+                      <button
+                        onClick={() => handleRemoveItem(item._id)}
+                        className="p-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-all duration-300 group"
+                      >
+                        <Trash2 className="h-4 w-4 group-hover:scale-110 transition-transform" />
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -288,8 +290,8 @@ const Cart = () => {
 
           {/* Order Summary */}
           <div className="lg:col-span-1">
-            <div className="sticky top-32">
-              <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800 rounded-2xl p-6">
+            <div className="sticky top-20 sm:top-32">
+              <div className="bg-gray-900/60 backdrop-blur-sm border border-gray-800 rounded-2xl p-4 sm:p-6">
                 <div className="flex items-center gap-3 mb-6">
                   <div className="p-2 bg-gradient-to-r from-yellow-400 to-orange-500 rounded-lg">
                     <Eye className="h-5 w-5 text-black" />
@@ -339,18 +341,18 @@ const Cart = () => {
                   </div>
                 </div>
 
-                <div className="space-y-3">
+                <div className="space-y-3 mt-6">
                   <button
                     onClick={handleCheckout}
-                    className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-black py-4 rounded-lg hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
+                    className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-bold py-3 sm:py-4 rounded-lg hover:scale-105 transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base"
                   >
-                    <Lock className="h-5 w-5" />
+                    <Lock className="h-4 w-4 sm:h-5 sm:w-5" />
                     SECURE CHECKOUT
                   </button>
 
                   <Link
                     to="/products"
-                    className="block w-full bg-gray-800/60 hover:bg-gray-700/60 border border-gray-700 hover:border-gray-600 text-white font-bold py-4 rounded-lg transition-all duration-300 text-center"
+                    className="block w-full bg-gray-800/60 hover:bg-gray-700/60 border border-gray-700 hover:border-gray-600 text-white font-bold py-3 sm:py-4 rounded-lg transition-all duration-300 text-center text-sm sm:text-base"
                   >
                     CONTINUE MISSION
                   </Link>
