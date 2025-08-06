@@ -31,3 +31,17 @@ export const authenticate = async (req, res, next) => {
     })
   }
 }
+
+export const authorizeAdmin = (req, res, next) => {
+  // We check if req.user was set by the authenticate middleware
+  // and if the user's role is 'admin'
+  if (req.user && req.user.role === "admin") {
+    next(); // User is an admin, proceed to the route handler
+  } else {
+    // If not an admin, send a 'Forbidden' error
+    res.status(403).json({
+      success: false,
+      message: "Forbidden. You do not have permission to perform this action.",
+    });
+  }
+};
