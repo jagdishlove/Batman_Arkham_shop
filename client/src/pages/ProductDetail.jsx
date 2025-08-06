@@ -1,9 +1,11 @@
 import { useState } from "react";
 import { Star, ShoppingCart, ArrowLeft, Shield, Zap } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 
 const BatmanProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const [selectedImage, setSelectedImage] = useState(0);
+  const navigate = useNavigate();
 
   // Mock product data
   const product = {
@@ -43,7 +45,7 @@ const BatmanProductDetail = () => {
   };
 
   const handleBack = () => {
-    alert("Returning to equipment catalog");
+    navigate("/products");
   };
 
   return (
