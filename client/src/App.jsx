@@ -16,6 +16,7 @@ import Orders from "@/pages/Orders";
 import ScrollToTop from "./components/UI/ScrollToTop";
 import ErrorPage from "./pages/ErrorPage";
 import ToastContainer from "./components/UI/ToastContainer";
+import ContactUs from "./pages/ContactUs";
 
 function App() {
   return (
@@ -33,6 +34,7 @@ function App() {
               <Route path="/products/:id" element={<ProductDetail />} />
               <Route path="/cart" element={<Cart />} />
               <Route path="/checkout" element={<Checkout />} />
+              <Route path="/contact" element={<ContactUs />} />
               <Route
                 path="/order-confirmation/:id"
                 element={<OrderConfirmation />}
