@@ -10,6 +10,10 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import useCartStore from "../store/cartStore";
+import { batmanToast } from "@/utils/toast";// Adjust path as needed
+import useAuthStore from "../store/authStore";
 
 // Mock components and hooks
 const LoadingSpinner = ({ size }) => (
@@ -20,79 +24,58 @@ const LoadingSpinner = ({ size }) => (
   ></div>
 );
 
-const Link = ({ to, children, className, onClick }) => (
-  <a
-    href={to}
-    className={className}
-    onClick={(e) => {
-      e.preventDefault();
-      onClick && onClick();
-    }}
-  >
-    {children}
-  </a>
-);
-
-// Mock data and hooks
-const useAuthStore = () => ({ isAuthenticated: true });
-
-const useCart = () => ({
-  data: {
-    items: [
-      {
-        productId: {
-          _id: "1",
-          name: "Batman Tactical Cowl",
-          images: [{ url: "/placeholder.jpg" }],
-          stock: 5,
-        },
-        price: 599,
-        quantity: 1,
-      },
-      {
-        productId: {
-          _id: "2",
-          name: "Utility Belt Pro System",
-          images: [{ url: "/placeholder.jpg" }],
-          stock: 3,
-        },
-        price: 299,
-        quantity: 2,
-      },
-      {
-        productId: {
-          _id: "3",
-          name: "Grappling Hook Advanced",
-          images: [{ url: "/placeholder.jpg" }],
-          stock: 2,
-        },
-        price: 899,
-        quantity: 1,
-      },
-    ],
-    totalAmount: 1797,
-  },
-  isLoading: false,
-});
-
-const useUpdateCart = () => ({
-  mutate: (data) => console.log("Update cart:", data),
-});
-const useRemoveFromCart = () => ({
-  mutate: (id) => console.log("Remove item:", id),
-});
-const useClearCart = () => ({ mutate: () => console.log("Clear cart") });
-
 const formatPrice = (price) => `$${price.toFixed(2)}`;
 
 const Cart = () => {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
-  const isAuthenticated = useAuthStore().isAuthenticated;
+  const navigate = useNavigate();
 
-  const { data: cart, isLoading } = useCart();
-  const updateCartMutation = useUpdateCart();
-  const removeFromCartMutation = useRemoveFromCart();
-  const clearCartMutation = useClearCart();
+  // Get cart data and actions from Zustand store
+  const { items, updateQuantity, removeItem, clearCart, getCartTotal } =
+    useCartStore((state) => ({
+      items: state.items,
+      updateQuantity: state.updateQuantity,
+      removeItem: state.removeItem,
+      clearCart: state.clearCart,
+      getCartTotal: state.getCartTotal,
+    }));
+
+  // Calculate totals
+  const subtotal = getCartTotal();
+  const tax = subtotal * 0.1;
+  const shipping = subtotal > 100 ? 0 : 10;
+  const total = subtotal + tax + shipping;
+
+  const handleUpdateQuantity = (productId, newQuantity) => {
+    try {
+      updateQuantity(productId, newQuantity);
+      batmanToast.success("Quantity updated");
+    } catch (error) {
+      batmanToast.error(error.message);
+    }
+  };
+
+  const handleRemoveItem = (productId) => {
+    removeItem(productId);
+    batmanToast.success("Item removed from storage");
+  };
+
+  const handleClearCart = () => {
+    if (showClearConfirm) {
+      clearCart();
+      setShowClearConfirm(false);
+      batmanToast.success("Storage cleared");
+    } else {
+      setShowClearConfirm(true);
+      setTimeout(() => setShowClearConfirm(false), 3000);
+    }
+  };
+
+  const handleCheckout = () => {
+    navigate("/checkout");
+  };
+
+  const { isAuthenticated, isLoading } = useAuthStore();
 
   if (!isAuthenticated) {
     return (
@@ -139,7 +122,7 @@ const Cart = () => {
     );
   }
 
-  if (!cart || cart.items.length === 0) {
+  if (items.length === 0) {
     return (
       <div className="min-h-screen bg-black text-white flex items-center justify-center">
         <div className="max-w-md mx-auto px-6 text-center">
@@ -171,29 +154,6 @@ const Cart = () => {
     );
   }
 
-  const updateQuantity = (productId, newQuantity) => {
-    updateCartMutation.mutate({ productId, quantity: newQuantity });
-  };
-
-  const removeItem = (productId) => {
-    removeFromCartMutation.mutate(productId);
-  };
-
-  const clearCart = () => {
-    if (showClearConfirm) {
-      clearCartMutation.mutate();
-      setShowClearConfirm(false);
-    } else {
-      setShowClearConfirm(true);
-      setTimeout(() => setShowClearConfirm(false), 3000);
-    }
-  };
-
-  const subtotal = cart.totalAmount || 0;
-  const tax = subtotal * 0.1;
-  const shipping = subtotal > 100 ? 0 : 10;
-  const total = subtotal + tax + shipping;
-
   return (
     <div className="min-h-screen bg-black text-white relative overflow-hidden">
       {/* Background effects - minimal */}
@@ -214,7 +174,7 @@ const Cart = () => {
             </h1>
             <p className="text-gray-500 flex items-center gap-2 font-mono">
               <Shield className="h-4 w-4" />
-              {cart.items.length} items in tactical storage
+              {items.length} items in tactical storage
             </p>
           </div>
 
@@ -243,18 +203,20 @@ const Cart = () => {
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
           {/* Cart Items */}
           <div className="lg:col-span-2 space-y-4">
-            {cart.items.map((item, index) => (
+            {items.map((item, index) => (
               <div
-                key={item.productId._id}
+                key={item._id}
                 className="group bg-gray-900/40 backdrop-blur-sm border border-gray-800 rounded-xl p-6 hover:border-gray-700 transition-all duration-300"
               >
                 <div className="flex items-center gap-6">
                   {/* Product Image */}
                   <div className="relative">
                     <div className="w-20 h-20 bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
-                      <span className="text-gray-600 text-sm font-mono">
-                        IMG
-                      </span>
+                      <img
+                        src={item.image}
+                        alt={item.name}
+                        className="w-full h-full object-cover"
+                      />
                     </div>
                     <div className="absolute -top-2 -right-2 bg-yellow-400 text-black text-xs px-2 py-1 rounded-full font-bold">
                       #{index + 1}
@@ -263,19 +225,19 @@ const Cart = () => {
 
                   {/* Product Info */}
                   <div className="flex-1 min-w-0">
-                    <Link
-                      to={`/products/${item.productId._id}`}
+                    <button
+                      onClick={() => navigate(`/products/${item._id}`)}
                       className="text-lg font-bold text-white hover:text-yellow-400 transition-colors duration-300 block truncate"
                     >
-                      {item.productId.name}
-                    </Link>
+                      {item.name}
+                    </button>
                     <p className="text-gray-400 font-mono text-sm mt-1">
                       Unit Price: {formatPrice(item.price)}
                     </p>
                     <div className="flex items-center gap-2 mt-2">
                       <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                       <span className="text-xs text-green-400 font-mono">
-                        {item.productId.stock} units available
+                        {item.stock} units available
                       </span>
                     </div>
                   </div>
@@ -284,7 +246,7 @@ const Cart = () => {
                   <div className="flex items-center gap-3 bg-gray-800/60 rounded-lg p-2">
                     <button
                       onClick={() =>
-                        updateQuantity(item.productId._id, item.quantity - 1)
+                        updateQuantity(item._id, item.quantity - 1)
                       }
                       disabled={item.quantity <= 1}
                       className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:hover:bg-gray-700 transition-colors"
@@ -298,9 +260,9 @@ const Cart = () => {
 
                     <button
                       onClick={() =>
-                        updateQuantity(item.productId._id, item.quantity + 1)
+                        updateQuantity(item._id, item.quantity + 1)
                       }
-                      disabled={item.quantity >= item.productId.stock}
+                      disabled={item.quantity >= item.productId?.stock}
                       className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:hover:bg-gray-700 transition-colors"
                     >
                       <Plus className="h-4 w-4 text-white" />
@@ -313,7 +275,7 @@ const Cart = () => {
                       {formatPrice(item.price * item.quantity)}
                     </p>
                     <button
-                      onClick={() => removeItem(item.productId._id)}
+                      onClick={() => removeItem(item._id)}
                       className="mt-2 p-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-all duration-300 group"
                     >
                       <Trash2 className="h-4 w-4 group-hover:scale-110 transition-transform" />
@@ -379,7 +341,7 @@ const Cart = () => {
 
                 <div className="space-y-3">
                   <button
-                    onClick={() => console.log("Navigate to checkout")}
+                    onClick={handleCheckout}
                     className="w-full bg-gradient-to-r from-yellow-400 to-orange-500 text-black font-black py-4 rounded-lg hover:scale-105 transition-all duration-300 flex items-center justify-center gap-3"
                   >
                     <Lock className="h-5 w-5" />
