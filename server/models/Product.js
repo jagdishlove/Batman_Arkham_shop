@@ -1,4 +1,5 @@
-import mongoose from "mongoose"
+// models/Product.js
+import mongoose from "mongoose";
 
 const productSchema = new mongoose.Schema(
   {
@@ -24,11 +25,20 @@ const productSchema = new mongoose.Schema(
       type: String,
       required: [true, "Product category is required"],
     },
-    brand: String,
+    brand: {
+      type: String,
+      default: "WayneTech",
+    },
     images: [
       {
-        url: String,
-        alt: String,
+        url: {
+          type: String,
+          required: true,
+        },
+        alt: {
+          type: String,
+          default: "",
+        },
       },
     ],
     stock: {
@@ -40,7 +50,7 @@ const productSchema = new mongoose.Schema(
     inStock: {
       type: Boolean,
       default: function () {
-        return this.stock > 0
+        return this.stock > 0;
       },
     },
     rating: {
@@ -51,14 +61,17 @@ const productSchema = new mongoose.Schema(
       type: Boolean,
       default: true,
     },
-    tags: [String],
+    tags: {
+      type: [String],
+      default: [],
+    },
   },
-  { timestamps: true },
-)
+  { timestamps: true }
+);
 
 productSchema.pre("save", function (next) {
-  this.inStock = this.stock > 0
-  next()
-})
+  this.inStock = this.stock > 0;
+  next();
+});
 
-export default mongoose.model("Product", productSchema)
+export default mongoose.model("Product", productSchema);
