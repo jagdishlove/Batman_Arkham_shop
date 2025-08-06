@@ -26,6 +26,7 @@ dist-ssr/
 .env.local
 client/.env
 server/.env
+.history
 
 # IDEs and editors
 .vscode/*
