@@ -15,6 +15,7 @@ import Checkout from "@/pages/Checkout";
 import OrderConfirmation from "@/pages/OrderConfirmation";
 import Orders from "@/pages/Orders";
 import ScrollToTop from "./components/UI/ScrollToTop";
+import ErrorPage from "./pages/ErrorPage";
 
 function App() {
   return (
@@ -37,6 +38,7 @@ function App() {
                 element={<OrderConfirmation />}
               />
               <Route path="/orders" element={<Orders />} />
+              <Route path="*" element={<ErrorPage />} />
             </Routes>
           </main>
           <Footer />
