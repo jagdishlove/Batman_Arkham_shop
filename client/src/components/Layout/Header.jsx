@@ -92,6 +92,13 @@ const Header = () => {
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               <Link
+                to="/"
+                className="relative text-white hover:text-purple-400 font-medium transition-colors duration-300 group"
+              >
+                Home
+                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all duration-300"></span>
+              </Link>
+              <Link
                 to="/products"
                 className="relative text-white hover:text-purple-400 font-medium transition-colors duration-300 group"
               >
