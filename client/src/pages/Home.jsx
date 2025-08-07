@@ -287,20 +287,6 @@ const Home = () => {
           <div className="flex flex-col sm:flex-row justify-center gap-8">
             <Link
               to="/products"
-              className="group relative px-12 py-4 text-xl font-bold text-black bg-gradient-to-r from-yellow-400 to-orange-500 rounded-full shadow-2xl
-                hover:scale-110 transform transition-all duration-300 overflow-hidden
-                focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-50"
-            >
-              <span className="absolute inset-0 bg-gradient-to-r from-yellow-400 to-orange-500 blur opacity-50 group-hover:opacity-75 transition-opacity"></span>
-              <span className="relative flex items-center gap-3 select-none">
-                <Zap className="h-6 w-6" />
-                ENTER THE DOMAIN
-                <Zap className="h-6 w-6" />
-              </span>
-            </Link>
-
-            <Link
-              to="/products"
               className="group relative px-12 py-4 text-xl font-bold text-yellow-400 border-2 border-yellow-400 rounded-full
                 hover:bg-yellow-400/10 hover:scale-110 transform transition-all duration-300 overflow-hidden
                 focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-50"
