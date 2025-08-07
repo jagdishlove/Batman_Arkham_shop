@@ -26,8 +26,6 @@ const BatmanSignup = () => {
     phone: "",
   });
 
-
-
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [errors, setErrors] = useState({});
@@ -37,7 +35,7 @@ const BatmanSignup = () => {
 
   const signUpApi = (data) => post("/auth/register", data);
 
- 
+  const { isAuthenticated, user } = useAuthStore();
 
   // Validation rules
   const validateName = (name) => {
@@ -88,6 +86,17 @@ const BatmanSignup = () => {
       navigate("/login");
     },
   });
+
+  // Check authentication status on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
 
   const validateForm = () => {
     const newErrors = {
