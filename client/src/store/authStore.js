@@ -23,6 +23,18 @@ const useAuthStore = create(
       logout: () => {
         set({ user: null, token: null, isAuthenticated: false });
       },
+
+      login: (userData) => {
+        set({
+          user: userData,
+          isAuthenticated: true,
+        });
+        // Redirect based on role
+        if (userData.role === "admin") {
+          return "/admin/dashboard";
+        }
+        return "/";
+      },
     }),
     {
       name: "auth-storage", // key in localStorage
