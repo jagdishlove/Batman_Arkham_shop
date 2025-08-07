@@ -7,7 +7,6 @@ import api from "@/lib/api"; // <-- use your custom axios instance
 import useAuthStore from "../store/authStore";
 import { post } from "../lib/http";
 import { useStandardMutation } from "../lib/useStandardMutation";
-import { batmanToast } from "@/utils/toast";
 
 const loginApi = async ({ email, password }) => {
   const res = await api.post("/auth/login", { email, password });
@@ -25,14 +24,8 @@ const BatmanLogin = () => {
   const [touched, setTouched] = useState({});
 
   const navigate = useNavigate();
-  const { isAuthenticated, setAuth } = useAuthStore();
+  const { isAuthenticated, user, setAuth } = useAuthStore();
   const loginApi = (data) => post("/auth/login", data);
-
-  useEffect(() => {
-    if (isAuthenticated) {
-      navigate("/");
-    }
-  }, [isAuthenticated, navigate]);
 
   // React Query mutation
   const { mutate, isPending } = useStandardMutation(loginApi, {
@@ -40,21 +33,37 @@ const BatmanLogin = () => {
     sideEffects: (res) => {
       const { token, user } = res.data.data;
       setAuth(user, token);
+      if (user.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
     },
   });
 
-  // Validation rules
+  // Check authentication status on mount
+  useEffect(() => {
+    if (isAuthenticated) {
+      if (user?.role === "admin") {
+        navigate("/admin/dashboard");
+      } else {
+        navigate("/");
+      }
+    }
+  }, [isAuthenticated, user, navigate]);
+
+  // Enhanced validation messages
   const validateEmail = (email) => {
     const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!email) return "Access credentials required";
+    if (!email) return "Command center access requires credentials";
     if (!emailRegex.test(email)) return "Invalid security clearance format";
     return "";
   };
 
   const validatePassword = (password) => {
-    if (!password) return "Security code required";
+    if (!password) return "Encryption key required";
     if (password.length < 6)
-      return "Security code must be at least 6 characters";
+      return "Security protocol requires minimum 6 characters";
     return "";
   };
 
@@ -268,16 +277,18 @@ const BatmanLogin = () => {
                 {isPending ? (
                   <>
                     <div className="w-5 h-5 border-2 border-black/30 border-t-black rounded-full animate-spin"></div>
-                    <span>AUTHENTICATING...</span>
+                    <span>VERIFYING CREDENTIALS...</span>
                   </>
                 ) : (
-                  <span>Login</span>
+                  <span>LOGIN</span>
                 )}
               </button>
 
               {/* Create Account Link */}
               <div className="text-center pt-6 border-t border-gray-800">
-                <p className="text-gray-400 text-sm mb-2">New operative?</p>
+                <p className="text-gray-400 text-sm mb-2">
+                  New to the Batcave?
+                </p>
                 <button
                   type="button"
                   onClick={handleCreateAccount}
