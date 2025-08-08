@@ -12,7 +12,6 @@ import { useState, useEffect, useCallback } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.svg"; // Assuming you have a logo image
 import useAuthStore from "../../store/authStore";
-import { batmanToast } from "@/utils/toast";
 import useCartStore from "../../store/cartStore";
 
 const useCart = () => ({
@@ -28,9 +27,19 @@ const Header = () => {
   const items = useCartStore((state) => state.items);
   const itemCount = items.reduce((sum, item) => sum + item.quantity, 0);
 
+  // Determine if the user is an admin
+  const isAdmin = isAuthenticated && user?.role === "admin";
+  // Set the correct home/logo link based on user role
+  const homeLink = isAdmin ? "/admin/dashboard" : "/";
+
   // Close menu when route changes
   useEffect(() => {
-    return () => setIsMenuOpen(false);
+    const cleanup = () => {
+      setIsMenuOpen(false);
+    };
+
+    // Clean up when component unmounts or route changes
+    return cleanup;
   }, [navigate]);
 
   // Handle scroll effect with debounce
@@ -62,12 +71,33 @@ const Header = () => {
     return () => document.removeEventListener("click", handleClickOutside);
   }, [isMenuOpen]);
 
-  const handleLogout = useCallback(() => {
-    logout();
-    setIsMenuOpen(false);
-    batmanToast.success("You have been logged out.");
-    navigate("/login");
-  }, [logout, navigate]);
+  // First, update the handleLogout function to be more robust
+  const handleLogout = useCallback(async () => {
+    try {
+      // Close mobile menu first
+      setIsMenuOpen(false);
+
+      // Get current role before logout
+      const wasAdmin = user?.role === "admin";
+
+      // Perform logout
+      await logout();
+
+      // Clear any other stores if needed (like cart)
+      // Example: clearCart();
+
+      // Navigate based on previous role
+      if (wasAdmin) {
+        // For admin, navigate to login
+        navigate("/login", { replace: true });
+      } else {
+        // For regular users, navigate to home
+        navigate("/", { replace: true });
+      }
+    } catch (error) {
+      console.error("Logout failed:", error);
+    }
+  }, [logout, navigate, user?.role]);
 
   const handleMenuItemClick = () => {
     setIsMenuOpen(false);
@@ -83,6 +113,13 @@ const Header = () => {
       {children}
     </Link>
   );
+
+  // Add a protection for admin routes
+  useEffect(() => {
+    if (!isAuthenticated && window.location.pathname.startsWith("/admin")) {
+      navigate("/login", { replace: true });
+    }
+  }, [isAuthenticated, navigate]);
 
   return (
     <>
@@ -105,8 +142,8 @@ const Header = () => {
 
         <div className="mx-auto px-4 sm:px-6 lg:px-8 relative">
           <div className="flex items-center justify-between h-20">
-            {/* Logo with glow effect */}
-            <Link to="/" className="flex items-center space-x-3 group">
+            {/* Logo with conditional link */}
+            <Link to={homeLink} className="flex items-center space-x-3 group">
               <div className="relative">
                 <div className="absolute inset-0 bg-gradient-to-r from-purple-600 to-blue-600 rounded-full blur-lg opacity-75 group-hover:opacity-100 transition-opacity animate-pulse"></div>
                 <div className="relative bg-gradient-to-r from-purple-600 to-blue-600 p-2 rounded-full">
@@ -132,33 +169,39 @@ const Header = () => {
             {/* Navigation */}
             <nav className="hidden md:flex items-center space-x-8">
               <Link
-                to="/"
+                to={homeLink}
                 className="relative text-white hover:text-purple-400 font-medium transition-colors duration-300 group"
               >
                 Home
                 <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all duration-300"></span>
               </Link>
-              <Link
-                to="/products"
-                className="relative text-white hover:text-purple-400 font-medium transition-colors duration-300 group"
-              >
-                Products
-                <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all duration-300"></span>
-              </Link>
+
+              {/* Hide Products link for admins */}
+              {!isAdmin && (
+                <Link
+                  to="/products"
+                  className="relative text-white hover:text-purple-400 font-medium transition-colors duration-300 group"
+                >
+                  Products
+                  <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-gradient-to-r from-purple-500 to-blue-500 group-hover:w-full transition-all duration-300"></span>
+                </Link>
+              )}
 
               {isAuthenticated ? (
                 <>
-                  {/* Cart with animation */}
-                  <Link to="/cart" className="relative group">
-                    <div className="relative p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-300 hover:scale-110">
-                      <ShoppingCart className="h-6 w-6 text-white group-hover:text-purple-400 transition-colors" />
-                      {itemCount > 0 && (
-                        <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-bounce">
-                          {itemCount}
-                        </span>
-                      )}
-                    </div>
-                  </Link>
+                  {/* Hide Cart for admins */}
+                  {!isAdmin && (
+                    <Link to="/cart" className="relative group">
+                      <div className="relative p-2 rounded-full bg-gray-800/50 hover:bg-gray-700/50 transition-all duration-300 hover:scale-110">
+                        <ShoppingCart className="h-6 w-6 text-white group-hover:text-purple-400 transition-colors" />
+                        {itemCount > 0 && (
+                          <span className="absolute -top-1 -right-1 bg-gradient-to-r from-pink-500 to-purple-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold animate-bounce">
+                            {itemCount}
+                          </span>
+                        )}
+                      </div>
+                    </Link>
+                  )}
 
                   {/* User dropdown with glow */}
                   <div className="relative group">
@@ -176,19 +219,22 @@ const Header = () => {
                     <div className="absolute right-0 mt-3 w-56 bg-gray-900/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-purple-500/20 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 border border-gray-700/50">
                       <div className="absolute -top-2 right-6 w-4 h-4 bg-gray-900/90 backdrop-blur-xl transform rotate-45 border-l border-t border-gray-700/50"></div>
 
-                      <Link
-                        to="/orders"
-                        className="block px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-200 mx-2 rounded-lg"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Star className="h-4 w-4" />
-                          My Orders
-                        </div>
-                      </Link>
+                      {/* Hide My Orders for admins */}
+                      {!isAdmin && (
+                        <Link
+                          to="/orders"
+                          className="block px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-200 mx-2 rounded-lg"
+                        >
+                          <div className="flex items-center gap-3">
+                            <Star className="h-4 w-4" />
+                            My Orders
+                          </div>
+                        </Link>
+                      )}
 
                       <button
                         onClick={handleLogout}
-                        className="w-full group flex items-center gap-3 px-6 py-3 text-sm text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-300"
+                        className="w-full group flex items-center gap-3 px-6 py-3 text-red-400 hover:text-red-300 hover:bg-red-500/10 transition-all duration-300"
                       >
                         <div className="relative flex items-center gap-3 w-full">
                           <LogOut className="h-4 w-4 group-hover:rotate-12 transition-transform duration-300" />
@@ -264,42 +310,50 @@ const Header = () => {
                 )}
 
                 <nav className="space-y-4">
-                  <MobileMenuItem to="/">
+                  <MobileMenuItem to={homeLink}>
                     <div className="flex items-center gap-3">
                       <Zap className="h-5 w-5" />
                       <span>Home</span>
                     </div>
                   </MobileMenuItem>
 
-                  <MobileMenuItem to="/products">
-                    <div className="flex items-center gap-3">
-                      <Star className="h-5 w-5" />
-                      <span>Products</span>
-                    </div>
-                  </MobileMenuItem>
+                  {/* Hide Products for admins */}
+                  {!isAdmin && (
+                    <MobileMenuItem to="/products">
+                      <div className="flex items-center gap-3">
+                        <Star className="h-5 w-5" />
+                        <span>Products</span>
+                      </div>
+                    </MobileMenuItem>
+                  )}
 
                   {isAuthenticated ? (
                     <>
-                      <MobileMenuItem to="/cart">
-                        <div className="flex items-center justify-between">
-                          <div className="flex items-center gap-3">
-                            <ShoppingCart className="h-5 w-5" />
-                            <span>Cart</span>
-                          </div>
-                          {itemCount > 0 && (
-                            <span className="px-2.5 py-0.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold rounded-full">
-                              {itemCount}
-                            </span>
-                          )}
-                        </div>
-                      </MobileMenuItem>
+                      {/* Hide Cart and Orders for admins */}
+                      {!isAdmin && (
+                        <>
+                          <MobileMenuItem to="/cart">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-3">
+                                <ShoppingCart className="h-5 w-5" />
+                                <span>Cart</span>
+                              </div>
+                              {itemCount > 0 && (
+                                <span className="px-2.5 py-0.5 bg-gradient-to-r from-purple-600 to-blue-600 text-white text-xs font-bold rounded-full">
+                                  {itemCount}
+                                </span>
+                              )}
+                            </div>
+                          </MobileMenuItem>
 
-                      <MobileMenuItem to="/orders">
-                        <div className="flex items-center gap-3">
-                          <Star className="h-5 w-5" />
-                          <span>My Orders</span>
-                        </div>
-                      </MobileMenuItem>
+                          <MobileMenuItem to="/orders">
+                            <div className="flex items-center gap-3">
+                              <Star className="h-5 w-5" />
+                              <span>My Orders</span>
+                            </div>
+                          </MobileMenuItem>
+                        </>
+                      )}
 
                       <button
                         onClick={handleLogout}
