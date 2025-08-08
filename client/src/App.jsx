@@ -4,19 +4,15 @@ import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
 import { queryClient } from "@/lib/queryClient";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
-import Home from "@/pages/Home";
-import Login from "@/pages/Login";
-import Signup from "@/pages/Signup";
-import Products from "@/pages/Products";
-import ProductDetail from "@/pages/ProductDetail";
-import Cart from "@/pages/Cart";
-import Checkout from "@/pages/Checkout";
-import OrderConfirmation from "@/pages/OrderConfirmation";
-import Orders from "@/pages/Orders";
 import ScrollToTop from "./components/UI/ScrollToTop";
 import ErrorPage from "./pages/ErrorPage";
 import ToastContainer from "./components/UI/ToastContainer";
-import ContactUs from "./pages/ContactUs";
+import { publicRoutes } from "./routes";
+import { userRoutes } from "./routes/userRoutes";
+import { adminRoutes } from "./routes/adminRoutes";
+import UserRoute from "./routes/protectedRoutes/UserRoute";
+import AdminRoute from "./routes/protectedRoutes/AdminRoute";
+import PublicRouteGuard from "./routes/publicRoutes/PublicRoute";
 
 function App() {
   return (
@@ -24,22 +20,43 @@ function App() {
       <Router>
         <ScrollToTop />
         <div className="min-h-screen flex flex-col">
+          {/* Header might be checking auth status */}
           <Header />
           <main className="flex-1 pt-20">
             <Routes>
-              <Route path="/" element={<Home />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/products" element={<Products />} />
-              <Route path="/products/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-              <Route path="/checkout" element={<Checkout />} />
-              <Route path="/contact" element={<ContactUs />} />
-              <Route
-                path="/order-confirmation/:id"
-                element={<OrderConfirmation />}
-              />
-              <Route path="/orders" element={<Orders />} />
+              {/* Public Routes */}
+              <Route element={<PublicRouteGuard />}>
+                {publicRoutes.map((route) => (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    element={route.element}
+                  />
+                ))}
+              </Route>
+
+              {/* This guard might be firing multiple times */}
+              <Route element={<UserRoute />}>
+                {userRoutes.map((route) => (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    element={route.element}
+                  />
+                ))}
+              </Route>
+
+              {/* Protected Admin Routes */}
+              <Route path="/admin" element={<AdminRoute />}>
+                {adminRoutes.map((route) => (
+                  <Route
+                    key={route.path}
+                    path={route.path}
+                    element={route.element}
+                  />
+                ))}
+              </Route>
+
               <Route path="*" element={<ErrorPage />} />
             </Routes>
           </main>
@@ -47,7 +64,6 @@ function App() {
         </div>
         <ToastContainer />
       </Router>
-      <ReactQueryDevtools initialIsOpen={false} />
     </QueryClientProvider>
   );
 }
