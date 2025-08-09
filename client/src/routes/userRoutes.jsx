@@ -2,6 +2,7 @@ import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
 import Orders from "@/pages/Orders";
 import OrderConfirmation from "@/pages/OrderConfirmation";
+import OrderHistory from "../pages/OrderHistory";
 
 export const userRoutes = [
   {
@@ -14,7 +15,7 @@ export const userRoutes = [
   },
   {
     path: "orders",
-    element: <Orders />,
+    element: <OrderHistory />,
   },
   {
     path: "order-confirmation/:id",

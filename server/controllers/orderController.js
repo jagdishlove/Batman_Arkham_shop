@@ -33,31 +33,20 @@ export const createOrderHandler = async (req, res, next) => {
 
 export const getUserOrders = async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 10;
-    const skip = (page - 1) * limit;
+    const userId = req.user.id;
 
-    const [orders, total] = await Promise.all([
-      Order.find({ userId: req.user._id })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit)
-        .populate("items.productId", "name images"),
-      Order.countDocuments({ userId: req.user._id }),
-    ]);
+    const orders = await Order.find({ user: userId })
+      .populate({
+        path: "items.product",
+        model: "Product",
+        select: "name price images description category",
+      })
+      .sort({ createdAt: -1 })
+      .lean();
 
-    res.json({
+    res.status(200).json({
       success: true,
-      data: {
-        orders,
-        pagination: {
-          currentPage: page,
-          totalPages: Math.ceil(total / limit),
-          totalOrders: total,
-          hasNext: page < Math.ceil(total / limit),
-          hasPrev: page > 1,
-        },
-      },
+      data: orders,
     });
   } catch (error) {
     next(createError(500, "Failed to fetch orders"));
