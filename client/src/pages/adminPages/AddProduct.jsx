@@ -21,7 +21,7 @@ const AddProduct = () => {
     stock: "",
     inStock: true,
     tags: [],
-    rating: { average: 0, count: 0 },
+    rating: { rate: 0, count: 0 },
   };
   const [formData, setFormData] = useState(defaultFormData);
   const [images, setImages] = useState([]);
@@ -42,7 +42,6 @@ const AddProduct = () => {
       setImages([]);
       setImagePreviews([]);
       // Optionally navigate back
-  
     },
   });
 
@@ -80,8 +79,8 @@ const AddProduct = () => {
       const ratingField = name.split(".")[1];
       let newValue = value;
 
-      if (ratingField === "average") {
-        // For average rating
+      if (ratingField === "rate") {
+        // For rate rating
         if (value === "") {
           newValue = 0;
         } else {
@@ -158,7 +157,7 @@ const AddProduct = () => {
         category: formData.category,
         description: formData.description,
         rating: {
-          average: parseFloat(formData.rating.average) || 0,
+          rate: parseFloat(formData.rating.rate) || 0,
           count: parseInt(formData.rating.count) || 0,
         },
         stock: parseInt(formData.stock) || 0,
@@ -485,7 +484,7 @@ const AddProduct = () => {
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                 <div className="space-y-2">
                   <label
-                    htmlFor="rating.average"
+                    htmlFor="rating.rate"
                     className="block text-sm font-medium text-gray-400"
                   >
                     Average Rating (0-5)
@@ -493,9 +492,9 @@ const AddProduct = () => {
                   <div className="relative">
                     <input
                       type="text"
-                      name="rating.average"
-                      id="rating.average"
-                      value={formData.rating.average}
+                      name="rating.rate"
+                      id="rating.rate"
+                      value={formData.rating.rate}
                       onChange={handleChange}
                       onKeyPress={(e) => {
                         // Allow only numbers and one decimal point
@@ -519,7 +518,7 @@ const AddProduct = () => {
                       </svg>
                     </div>
                   </div>
-                  {parseFloat(formData.rating.average) > 5 && (
+                  {parseFloat(formData.rating.rate) > 5 && (
                     <p className="text-xs text-red-400 mt-1">
                       Rating cannot be higher than 5
                     </p>
@@ -551,16 +550,16 @@ const AddProduct = () => {
               </div>
 
               {/* Rating Preview */}
-              {(formData.rating.average > 0 || formData.rating.count > 0) && (
+              {(formData.rating.rate > 0 || formData.rating.count > 0) && (
                 <div className="flex items-center gap-2 p-3 bg-gray-900/30 rounded-lg border border-gray-800">
                   <div className="flex items-center gap-1 text-yellow-400">
                     {[...Array(5)].map((_, index) => (
                       <svg
                         key={index}
                         className={`h-4 w-4 ${
-                          index < Math.floor(formData.rating.average || 0)
+                          index < Math.floor(formData.rating.rate || 0)
                             ? "text-yellow-400"
-                            : index < (formData.rating.average || 0)
+                            : index < (formData.rating.rate || 0)
                             ? "text-yellow-400/50"
                             : "text-gray-600"
                         }`}
@@ -572,7 +571,7 @@ const AddProduct = () => {
                     ))}
                   </div>
                   <span className="text-yellow-400 font-medium">
-                    {(formData.rating.average || 0).toFixed(1)}
+                    {(formData.rating.rate || 0).toFixed(1)}
                   </span>
                   <span className="text-gray-400 text-sm">
                     ({formData.rating.count || 0} reviews)

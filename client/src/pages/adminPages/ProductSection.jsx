@@ -26,6 +26,7 @@ export const ProductsSection = () => {
     staleTime: 0, // Always fetch fresh data
   });
 
+
   // Add effect to refetch on mount
   useEffect(() => {
     // Refetch products when component mounts
@@ -120,7 +121,7 @@ export const ProductsSection = () => {
     );
   }
 
-  if (!products?.data?.data?.products?.length) {
+  if (!products?.products?.length) {
     return (
       <div className="flex flex-col items-center justify-center h-64">
         <p className="text-gray-400">No products found</p>
@@ -143,7 +144,7 @@ export const ProductsSection = () => {
       </div>
 
       <div className="grid grid-cols-1 gap-4">
-        {products?.data?.data?.products?.map((product) => (
+        {products?.products?.map((product) => (
           <div
             key={product.id}
             className="bg-gray-800/50 p-4 rounded-lg flex items-center justify-between"

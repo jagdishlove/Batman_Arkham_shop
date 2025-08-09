@@ -1,7 +1,7 @@
 import toast from "react-hot-toast";
 
 export const toastConfig = {
-  position: "top-right",
+  position: "top-center",
   toastOptions: {
     duration: 4000,
     className: "batman-toast",

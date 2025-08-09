@@ -1,21 +1,22 @@
-"use client"
+"use client";
 
-import { useParams, Link } from "react-router-dom"
-import { CheckCircle, Package } from "lucide-react"
-import { useOrder } from "@/hooks/useOrders"
-import { formatPrice, formatDate } from "@/lib/utils"
-import LoadingSpinner from "@/components/UI/LoadingSpinner"
+import { useParams, Link } from "react-router-dom";
+import { CheckCircle, Package } from "lucide-react";
+import { useOrder } from "@/hooks/useOrders";
+import { formatDate } from "@/lib/utils";
+import LoadingSpinner from "@/components/UI/LoadingSpinner";
+import { formatPrice } from "../utils";
 
 const OrderConfirmation = () => {
-  const { id } = useParams()
-  const { data: order, isLoading, error } = useOrder(id)
+  const { id } = useParams();
+  const { data: order, isLoading, error } = useOrder(id);
 
   if (isLoading) {
     return (
       <div className="flex justify-center items-center min-h-screen">
         <LoadingSpinner size="lg" />
       </div>
-    )
+    );
   }
 
   if (error || !order) {
@@ -28,7 +29,7 @@ const OrderConfirmation = () => {
           </Link>
         </div>
       </div>
-    )
+    );
   }
 
   return (
@@ -36,8 +37,12 @@ const OrderConfirmation = () => {
       {/* Success Header */}
       <div className="text-center mb-8">
         <CheckCircle className="h-16 w-16 text-green-500 mx-auto mb-4" />
-        <h1 className="text-3xl font-bold text-gray-900 mb-2">Order Confirmed!</h1>
-        <p className="text-gray-600">Thank you for your order. We'll send you a confirmation email shortly.</p>
+        <h1 className="text-3xl font-bold text-gray-900 mb-2">
+          Order Confirmed!
+        </h1>
+        <p className="text-gray-600">
+          Thank you for your order. We'll send you a confirmation email shortly.
+        </p>
       </div>
 
       {/* Order Details */}
@@ -55,7 +60,9 @@ const OrderConfirmation = () => {
 
           <div>
             <h3 className="font-semibold text-gray-900 mb-2">Total</h3>
-            <p className="text-xl font-bold text-gray-900">{formatPrice(order.total)}</p>
+            <p className="text-xl font-bold text-gray-900">
+              {formatPrice(order.total)}
+            </p>
           </div>
         </div>
 
@@ -64,7 +71,9 @@ const OrderConfirmation = () => {
           <Package className="h-6 w-6 text-blue-600" />
           <div>
             <p className="font-semibold">Order Status: {order.orderStatus}</p>
-            <p className="text-sm text-gray-600">We'll notify you when your order ships</p>
+            <p className="text-sm text-gray-600">
+              We'll notify you when your order ships
+            </p>
           </div>
         </div>
       </div>
@@ -75,7 +84,10 @@ const OrderConfirmation = () => {
 
         <div className="space-y-4">
           {order.items.map((item) => (
-            <div key={item.productId} className="flex items-center space-x-4 p-4 border rounded-lg">
+            <div
+              key={item.productId}
+              className="flex items-center space-x-4 p-4 border rounded-lg"
+            >
               <img
                 src={item.image || "/placeholder.svg?height=80&width=80"}
                 alt={item.name}
@@ -85,11 +97,15 @@ const OrderConfirmation = () => {
               <div className="flex-1">
                 <h3 className="font-semibold">{item.name}</h3>
                 <p className="text-gray-600">Quantity: {item.quantity}</p>
-                <p className="text-gray-600">Price: {formatPrice(item.price)}</p>
+                <p className="text-gray-600">
+                  Price: {formatPrice(item.price)}
+                </p>
               </div>
 
               <div className="text-right">
-                <p className="font-semibold">{formatPrice(item.price * item.quantity)}</p>
+                <p className="font-semibold">
+                  {formatPrice(item.price * item.quantity)}
+                </p>
               </div>
             </div>
           ))}
@@ -104,7 +120,8 @@ const OrderConfirmation = () => {
             <p>{order.shippingAddress.name}</p>
             <p>{order.shippingAddress.street}</p>
             <p>
-              {order.shippingAddress.city}, {order.shippingAddress.state} {order.shippingAddress.zipCode}
+              {order.shippingAddress.city}, {order.shippingAddress.state}{" "}
+              {order.shippingAddress.zipCode}
             </p>
             <p>{order.shippingAddress.country}</p>
             <p>{order.shippingAddress.phone}</p>
@@ -113,8 +130,12 @@ const OrderConfirmation = () => {
 
         <div className="card p-6">
           <h2 className="text-xl font-semibold mb-4">Payment Method</h2>
-          <p className="text-gray-600 capitalize">{order.paymentMethod.replace("_", " ")}</p>
-          <p className="text-sm text-gray-500 mt-2">Status: {order.paymentStatus}</p>
+          <p className="text-gray-600 capitalize">
+            {order.paymentMethod.replace("_", " ")}
+          </p>
+          <p className="text-sm text-gray-500 mt-2">
+            Status: {order.paymentStatus}
+          </p>
         </div>
       </div>
 
@@ -135,7 +156,9 @@ const OrderConfirmation = () => {
 
           <div className="flex justify-between">
             <span>Shipping</span>
-            <span>{order.shipping === 0 ? "Free" : formatPrice(order.shipping)}</span>
+            <span>
+              {order.shipping === 0 ? "Free" : formatPrice(order.shipping)}
+            </span>
           </div>
 
           <div className="border-t pt-3">
@@ -157,7 +180,7 @@ const OrderConfirmation = () => {
         </Link>
       </div>
     </div>
-  )
-}
+  );
+};
 
-export default OrderConfirmation
+export default OrderConfirmation;

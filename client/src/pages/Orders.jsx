@@ -5,6 +5,7 @@ import { Package, Shield, ArrowLeft, ArrowRight, Eye } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import { batmanToast } from "../utils/toast";
+import { formatPrice } from "../utils";
 
 const BatmanOrders = () => {
   const navigate = useNavigate();
@@ -89,7 +90,6 @@ const BatmanOrders = () => {
     },
   };
 
-  const formatPrice = (price) => `$${price.toFixed(2)}`;
   const formatDate = (date) => new Date(date).toLocaleDateString();
 
   // If not authenticated, show login prompt

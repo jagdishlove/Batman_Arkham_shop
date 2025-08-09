@@ -6,6 +6,7 @@ import useCartStore from "../store/cartStore";
 import { batmanToast } from "../utils/toast";
 import axios from "axios";
 import { Shield, Lock } from "lucide-react";
+import { formatPrice } from "../utils";
 
 const BatmanCheckout = () => {
   const navigate = useNavigate();
@@ -92,8 +93,6 @@ const BatmanCheckout = () => {
       setIsProcessing(false);
     }
   };
-
-  const formatPrice = (price) => `$${price.toFixed(2)}`;
 
   // Add this near the start of your component
   if (items.length === 0) {

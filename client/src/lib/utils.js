@@ -1,15 +1,8 @@
-import { clsx } from "clsx"
-import { twMerge } from "tailwind-merge"
+import { clsx } from "clsx";
+import { twMerge } from "tailwind-merge";
 
 export function cn(...inputs) {
-  return twMerge(clsx(inputs))
-}
-
-export const formatPrice = (price) => {
-  return new Intl.NumberFormat("en-US", {
-    style: "currency",
-    currency: "USD",
-  }).format(price)
+  return twMerge(clsx(inputs));
 }
 
 export const formatDate = (date) => {
@@ -17,5 +10,5 @@ export const formatDate = (date) => {
     year: "numeric",
     month: "long",
     day: "numeric",
-  }).format(new Date(date))
-}
+  }).format(new Date(date));
+};

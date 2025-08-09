@@ -10,7 +10,6 @@ const AdminRoute = () => {
 
   useEffect(() => {
     if (!isAuthenticated && !hasChecked.current) {
-      batmanToast.error("Admin access required.");
       hasChecked.current = true;
     }
   }, [isAuthenticated]);

@@ -171,6 +171,25 @@ const Home = () => {
     return () => window.removeEventListener("mousemove", updateCursor);
   }, []);
 
+  const handleProductClick = (productId) => {
+    if (!isAuthenticated) {
+      batmanToast.error("Please login to view product details");
+      navigate("/login");
+      return;
+    }
+    navigate(`/products/${productId}`);
+  };
+
+  const handleViewAllProducts = (e) => {
+    e.preventDefault();
+    if (!isAuthenticated) {
+      batmanToast.error("Please login to access the arsenal");
+      navigate("/login");
+      return;
+    }
+    navigate("/products");
+  };
+
   if (!isLoaded) {
     return (
       <main
@@ -555,19 +574,23 @@ const Home = () => {
             <>
               <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
                 {products?.products.slice(0, 8).map((product) => (
-                  <ProductCard key={product.id} product={product} />
+                  <div
+                    key={product.id}
+                    onClick={() => handleProductClick(product.id)}
+                    className="cursor-pointer"
+                  >
+                    <ProductCard product={product} />
+                  </div>
                 ))}
               </div>
 
               <div className="mt-12 flex justify-center">
-                <Link
-                  to="/products"
-                  className="px-8 py-3 rounded-full border border-yellow-400 text-yellow-400 font-semibold 
-              hover:bg-yellow-400 hover:text-black transition-colors 
-              focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-50"
+                <button
+                  onClick={handleViewAllProducts}
+                  className="px-6 py-2 bg-yellow-400/10 text-yellow-400 rounded-full hover:bg-yellow-400/20 transition-colors"
                 >
-                  See All Products
-                </Link>
+                  View All Products
+                </button>
               </div>
             </>
           )}

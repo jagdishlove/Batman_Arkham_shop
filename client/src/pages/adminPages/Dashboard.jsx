@@ -47,11 +47,11 @@ const Dashboard = () => {
 
     switch (type) {
       case "products":
-        return products?.data?.data?.products?.length || 0;
+        return products?.products?.length || 0;
       case "totalUsers":
-        return usersStats?.data?.data?.total || 0;
+        return usersStats?.total || 0;
       case "activeUsers":
-        return usersStats?.data?.active || 0;
+        return usersStats?.active || 0;
       default:
         return 0;
     }
@@ -99,7 +99,7 @@ const Dashboard = () => {
               <div>
                 <h3 className="text-xl font-bold mb-4">User Statistics</h3>
                 <div className="space-y-2">
-                  <p>Total Users: {usersStats?.data?.data?.total || 0}</p>
+                  <p>Total Users: {usersStats?.total || 0}</p>
                 </div>
               </div>
             )}

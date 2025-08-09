@@ -1,37 +1,80 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 import { Star, ShoppingCart, ArrowLeft, Shield, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
 import useCartStore from "../store/cartStore";
-import { batmanToast } from "@/utils/toast"; // Add toast for notifications
+import { batmanToast } from "@/utils/toast";
+import { get } from "../lib/http";
+import { QUERY_KEYS } from "../constants/queryKeys";
+import { useStandardQuery } from "../lib/useStandardQuery";
+import { formatPrice } from "../utils";
 
 const BatmanProductDetail = () => {
-  const [quantity, setQuantity] = useState(1);
+  const { id: productId } = useParams();
   const [selectedImage, setSelectedImage] = useState(0);
+  const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
   const addItem = useCartStore((state) => state.addItem);
 
-  // Mock product data
-  const product = {
-    id: "1",
-    name: "Advanced Tactical Grappling Hook",
-    category: "Tactical Equipment",
-    price: 1299.99,
-    originalPrice: 1599.99,
-    description:
-      "Military-grade titanium construction with quantum-encrypted targeting system. Features retractable carbon fiber cable rated for 2000lbs, silent deployment mechanism, and integrated GPS tracking. Essential equipment for urban reconnaissance and vertical infiltration missions.",
-    rating: { average: 4.8, count: 127 },
-    stock: 3,
-    inStock: true,
-    images: [
-      { url: "/api/placeholder/500/500" },
-      { url: "/api/placeholder/500/500" },
-      { url: "/api/placeholder/500/500" },
-    ],
-    tags: ["Tactical", "Stealth", "Professional", "Military-Grade"],
+  // Reset selected image when product changes
+  useEffect(() => {
+    setSelectedImage(0);
+    setQuantity(1);
+  }, [productId]);
+
+  const {
+    data: productData,
+    isLoading,
+    error,
+  } = useStandardQuery(
+    ["product", productId], // Unique query key per product
+    () => get(`/products/${productId}`),
+    {
+      errorMsg: "Failed to fetch product",
+      enabled: !!productId,
+      refetchOnMount: true, // Force refetch on mount
+      cacheTime: 0, // Don't cache the response
+    }
+  );
+
+  // Safely access product data
+  const product = productData?.product;
+
+  // Loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-yellow-400 border-t-transparent" />
+      </div>
+    );
+  }
+
+  // Error state
+  if (error || !product) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center px-4">
+        <Shield className="h-16 w-16 text-red-400 mb-4" />
+        <h2 className="text-2xl font-bold text-white mb-2">
+          Product Not Found
+        </h2>
+        <p className="text-gray-400 mb-4">
+          {error?.message || "This product doesn't exist in the arsenal."}
+        </p>
+        <button
+          onClick={() => navigate("/products")}
+          className="px-6 py-2 bg-yellow-400/10 text-yellow-400 rounded-full hover:bg-yellow-400/20 transition-colors"
+        >
+          Back to Arsenal
+        </button>
+      </div>
+    );
+  }
+
+  const handleBack = () => {
+    navigate("/products");
   };
 
   const isAuthenticated = true; // Mock auth state
-  const formatPrice = (price) => `$${price.toFixed(2)}`;
 
   const handleAddToCart = () => {
     if (!isAuthenticated) {
@@ -48,9 +91,9 @@ const BatmanProductDetail = () => {
     batmanToast.success(`${product.name} added to your loadout`);
   };
 
-  const handleBack = () => {
-    navigate("/products");
-  };
+  // Images safety check
+  const images = product?.images || [];
+  const currentImage = images[selectedImage] || images[0];
 
   return (
     <div className="min-h-screen bg-gray-900 text-gray-100">
@@ -69,19 +112,16 @@ const BatmanProductDetail = () => {
           <div className="space-y-6">
             <div className="aspect-square bg-gray-800 border border-gray-700 relative overflow-hidden">
               <img
-                src={
-                  product.images[selectedImage]?.url ||
-                  "/api/placeholder/500/500"
-                }
-                alt={product.name}
+                src={currentImage?.url || "/api/placeholder/500/500"}
+                alt={product?.name}
                 className="w-full h-full object-cover opacity-90"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-gray-900/20 to-transparent"></div>
             </div>
 
-            {product.images.length > 1 && (
+            {images.length > 1 && (
               <div className="flex space-x-3">
-                {product.images.map((image, index) => (
+                {images.map((image, index) => (
                   <button
                     key={index}
                     onClick={() => setSelectedImage(index)}
@@ -109,11 +149,11 @@ const BatmanProductDetail = () => {
               <div className="flex items-center space-x-3 mb-3">
                 <Shield className="h-5 w-5 text-yellow-400" />
                 <span className="text-gray-400 text-sm tracking-widest uppercase">
-                  {product.category}
+                  {product?.category}
                 </span>
               </div>
               <h1 className="text-3xl font-light text-white mb-4 tracking-wide">
-                {product.name}
+                {product?.name}
               </h1>
             </div>
 
@@ -124,7 +164,7 @@ const BatmanProductDetail = () => {
                   <Star
                     key={i}
                     className={`h-4 w-4 ${
-                      i < Math.floor(product.rating.average)
+                      i < Math.floor(product?.rating?.rate)
                         ? "text-yellow-400 fill-current"
                         : "text-gray-600"
                     }`}
@@ -132,18 +172,18 @@ const BatmanProductDetail = () => {
                 ))}
               </div>
               <span className="text-gray-400 text-sm">
-                ({product.rating.count} field reports)
+                ({product?.rating?.count} field reports)
               </span>
             </div>
 
             {/* Price */}
             <div className="flex items-baseline space-x-4">
               <span className="text-3xl font-light text-white">
-                {formatPrice(product.price)}
+                {formatPrice(product?.price)}
               </span>
-              {product.originalPrice && (
+              {product?.originalPrice && (
                 <span className="text-lg text-gray-500 line-through">
-                  {formatPrice(product.originalPrice)}
+                  {formatPrice(product?.originalPrice)}
                 </span>
               )}
             </div>
@@ -154,7 +194,7 @@ const BatmanProductDetail = () => {
                 SPECIFICATIONS
               </h3>
               <p className="text-gray-300 leading-relaxed">
-                {product.description}
+                {product?.description}
               </p>
             </div>
 
@@ -168,9 +208,9 @@ const BatmanProductDetail = () => {
                   value={quantity}
                   onChange={(e) => setQuantity(Number.parseInt(e.target.value))}
                   className="w-full bg-gray-800 border border-gray-700 text-gray-100 px-4 py-3 focus:border-yellow-400 focus:outline-none transition-colors"
-                  disabled={!product.inStock}
+                  disabled={!product?.inStock}
                 >
-                  {[...Array(Math.min(product.stock, 10))].map((_, i) => (
+                  {[...Array(Math.min(product?.stock, 10))]?.map((_, i) => (
                     <option key={i + 1} value={i + 1}>
                       {i + 1}
                     </option>
@@ -185,16 +225,16 @@ const BatmanProductDetail = () => {
                 <div className="flex items-center space-x-2 mt-3">
                   <div
                     className={`w-2 h-2 rounded-full ${
-                      product.inStock ? "bg-green-400" : "bg-red-400"
+                      product?.inStock ? "bg-green-400" : "bg-red-400"
                     }`}
                   ></div>
                   <span
                     className={`text-sm ${
-                      product.inStock ? "text-green-400" : "text-red-400"
+                      product?.inStock ? "text-green-400" : "text-red-400"
                     }`}
                   >
-                    {product.inStock
-                      ? `${product.stock} units ready`
+                    {product?.inStock
+                      ? `${product?.stock} units ready`
                       : "Currently unavailable"}
                   </span>
                 </div>
@@ -204,7 +244,7 @@ const BatmanProductDetail = () => {
             {/* Add to Cart */}
             <button
               onClick={handleAddToCart}
-              disabled={!product.inStock}
+              disabled={!product?.inStock}
               className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-medium py-4 px-6 tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
             >
               <ShoppingCart className="h-5 w-5" />
@@ -212,13 +252,13 @@ const BatmanProductDetail = () => {
             </button>
 
             {/* Tags */}
-            {product.tags && product.tags.length > 0 && (
+            {product?.tags && product?.tags.length > 0 && (
               <div>
                 <h3 className="text-gray-400 text-sm mb-4 tracking-wide uppercase">
                   Classifications
                 </h3>
                 <div className="flex flex-wrap gap-2">
-                  {product.tags.map((tag, index) => (
+                  {product?.tags.map((tag, index) => (
                     <span
                       key={index}
                       className="px-3 py-1 bg-gray-800 border border-gray-700 text-gray-300 text-xs tracking-wide uppercase"

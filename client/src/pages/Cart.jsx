@@ -14,6 +14,7 @@ import { Link, useNavigate } from "react-router-dom";
 import useCartStore from "../store/cartStore";
 import { batmanToast } from "@/utils/toast"; // Adjust path as needed
 import useAuthStore from "../store/authStore";
+import { formatPrice } from "../utils";
 
 // Mock components and hooks
 const LoadingSpinner = ({ size }) => (
@@ -23,8 +24,6 @@ const LoadingSpinner = ({ size }) => (
     }`}
   ></div>
 );
-
-const formatPrice = (price) => `$${price.toFixed(2)}`;
 
 const Cart = () => {
   const [showClearConfirm, setShowClearConfirm] = useState(false);
@@ -39,6 +38,8 @@ const Cart = () => {
       clearCart: state.clearCart,
       getCartTotal: state.getCartTotal,
     }));
+
+
 
   // Calculate totals
   const subtotal = getCartTotal();
@@ -212,7 +213,7 @@ const Cart = () => {
                   <div className="relative">
                     <div className="w-full h-32 sm:w-20 sm:h-20 bg-gray-800 rounded-lg flex items-center justify-center overflow-hidden">
                       <img
-                        src={item.image}
+                        src={item.images[0].url}
                         alt={item.name}
                         className="w-full h-full object-cover"
                       />
