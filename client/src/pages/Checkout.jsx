@@ -63,7 +63,7 @@ const BatmanCheckout = () => {
     try {
       const orderData = {
         items: items.map((item) => ({
-          productId: item._id,
+          productId: item.id,
           quantity: item.quantity,
           price: item.price,
         })),
@@ -82,7 +82,7 @@ const BatmanCheckout = () => {
 
       // Update toast and redirect
       batmanToast.success("Mission equipment secured!", { id: loadingToast });
-      navigate(`/order-confirmation/${response.data._id}`);
+      navigate(`/order-confirmation/${response.data.id}`);
     } catch (error) {
       batmanToast.error(
         error.response?.data?.message || "Equipment acquisition failed",
@@ -267,7 +267,7 @@ const BatmanCheckout = () => {
                 {/* Order Items */}
                 <div className="space-y-6 mb-8">
                   {items.map((item) => (
-                    <div key={item._id} className="flex items-center space-x-4">
+                    <div key={item.id} className="flex items-center space-x-4">
                       <div className="w-12 h-12 bg-gray-800 border border-gray-700 flex items-center justify-center">
                         <img
                           src={item.image}

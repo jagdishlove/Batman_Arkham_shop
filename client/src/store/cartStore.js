@@ -8,7 +8,7 @@ const useCartStore = create(
       addItem: (product, quantity) =>
         set((state) => {
           const existingItem = state.items.find(
-            (item) => item._id === product._id
+            (item) => item.id === product.id
           );
 
           // Check stock availability
@@ -19,7 +19,7 @@ const useCartStore = create(
             }
             return {
               items: state.items.map((item) =>
-                item._id === product._id
+                item.id === product.id
                   ? { ...item, quantity: newQuantity }
                   : item
               ),
@@ -36,11 +36,11 @@ const useCartStore = create(
         }),
       removeItem: (productId) =>
         set((state) => ({
-          items: state.items.filter((item) => item._id !== productId),
+          items: state.items.filter((item) => item.id !== productId),
         })),
       updateQuantity: (productId, quantity) =>
         set((state) => {
-          const item = state.items.find((item) => item._id === productId);
+          const item = state.items.find((item) => item.id === productId);
           if (!item) return state;
 
           if (quantity > item.stock) {
@@ -49,7 +49,7 @@ const useCartStore = create(
 
           return {
             items: state.items.map((item) =>
-              item._id === productId ? { ...item, quantity } : item
+              item.id === productId ? { ...item, quantity } : item
             ),
           };
         }),
@@ -64,11 +64,11 @@ const useCartStore = create(
       },
       isInCart: (productId) => {
         const items = get().items;
-        return items.some((item) => item._id === productId);
+        return items.some((item) => item.id === productId);
       },
       getItemQuantity: (productId) => {
         const items = get().items;
-        const item = items.find((item) => item._id === productId);
+        const item = items.find((item) => item.id === productId);
         return item ? item.quantity : 0;
       },
       getShippingCost: () => {

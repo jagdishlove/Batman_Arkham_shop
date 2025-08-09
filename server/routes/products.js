@@ -17,7 +17,7 @@ router.get("/featured", getFeaturedProducts);
 router.get("/:id", getProductById);
 
 // Admin routes
-router.post("/", authenticate, authorizeAdmin, createProduct);
+router.post("/create", authenticate, authorizeAdmin, createProduct);
 router.put("/:id", authenticate, authorizeAdmin, updateProduct);
 router.delete("/:id", authenticate, authorizeAdmin, deleteProduct);
 

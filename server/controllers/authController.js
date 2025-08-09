@@ -94,3 +94,51 @@ export const getProfile = async (req, res, next) => {
     next(createError(500, "Failed to get profile"));
   }
 };
+
+export const getTotalUsers = async (req, res) => {
+  try {
+    const totalUsers = await User.countDocuments({ role: "user" });
+    const activeUsers = await User.countDocuments({
+      role: "user",
+      isActive: true,
+    });
+
+    res.status(200).json({
+      success: true,
+      data: {
+        total: totalUsers,
+        active: activeUsers,
+      },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch user statistics",
+    });
+  }
+};
+
+export const toggleUserStatus = async (req, res) => {
+  try {
+    const userId = req.params.id;
+    
+    const user = await User.findById(userId);
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" });
+    }
+
+    user.isActive = !user.isActive;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: `User ${user.isActive ? 'activated' : 'deactivated'} successfully`,
+      data: { isActive: user.isActive }
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: "Error toggling user status"
+    });
+  }
+};

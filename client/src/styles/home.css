@@ -1,0 +1,130 @@
+.bat-cursor,
+.bat-cursor * {
+    cursor: none !important;
+}
+
+.custom-cursor {
+    width: 20px;
+    height: 20px;
+    position: fixed;
+    pointer-events: none;
+    z-index: 9999;
+    mix-blend-mode: difference;
+    transform: translate(-50%, -50%);
+    transition: transform 0.2s ease;
+}
+
+.custom-cursor.hover {
+    transform: translate(-50%, -50%) scale(1.5);
+}
+
+@keyframes cursorFloat {
+    0% {
+        transform: translate(-50%, -50%) rotate(0deg);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) rotate(360deg);
+    }
+}
+
+.cursor-hidden {
+    display: none;
+}
+
+.cursor-main {
+    width: 24px;
+    height: 24px;
+    position: absolute;
+    animation: cursorPulse 2s infinite;
+}
+
+.cursor-trail {
+    width: 48px;
+    height: 48px;
+    position: absolute;
+    border: 2px solid rgba(255, 193, 7, 0.5);
+    border-radius: 50%;
+    animation: cursorTrail 2s infinite;
+}
+
+.cursor-glow {
+    width: 100px;
+    height: 100px;
+    background: radial-gradient(circle,
+            rgba(255, 193, 7, 0.3) 0%,
+            rgba(255, 193, 7, 0.1) 50%,
+            transparent 70%);
+    position: absolute;
+    border-radius: 50%;
+    transform: translate(-50%, -50%) scale(0.8);
+    animation: glowPulse 2s infinite;
+}
+
+@keyframes cursorPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1);
+    }
+}
+
+@keyframes cursorTrail {
+    0% {
+        transform: translate(-50%, -50%) scale(0.5);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 0;
+    }
+}
+
+@keyframes glowPulse {
+    0% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.5;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.8;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(0.8);
+        opacity: 0.5;
+    }
+}
+
+.custom-cursor.hover .cursor-glow {
+    animation: glowPulseHover 1s infinite;
+    background: radial-gradient(circle,
+            rgba(255, 193, 7, 0.5) 0%,
+            rgba(255, 193, 7, 0.2) 50%,
+            transparent 70%);
+}
+
+@keyframes glowPulseHover {
+    0% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.8;
+    }
+
+    50% {
+        transform: translate(-50%, -50%) scale(1.5);
+        opacity: 1;
+    }
+
+    100% {
+        transform: translate(-50%, -50%) scale(1.2);
+        opacity: 0.8;
+    }
+}

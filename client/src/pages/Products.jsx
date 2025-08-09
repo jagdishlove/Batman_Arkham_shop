@@ -1,5 +1,5 @@
 // ProductsPage.jsx
-import { useState, useMemo } from "react";
+import { useState, useMemo, useEffect } from "react";
 import {
   Search,
   Shield,
@@ -10,81 +10,9 @@ import {
   ChevronRight,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-const productsData = [
-  {
-    _id: 1,
-    name: "Batman Tactical Cowl",
-    price: 599,
-    category: "armor",
-    rating: 5,
-    image: "/images/cowl.jpg",
-  },
-  {
-    _id: 2,
-    name: "Utility Belt Pro",
-    price: 299,
-    category: "gear",
-    rating: 5,
-    image: "/images/belt.jpg",
-  },
-  {
-    _id: 3,
-    name: "Grappling Hook",
-    price: 899,
-    category: "gadgets",
-    rating: 4,
-    image: "/images/hook.jpg",
-  },
-  {
-    _id: 4,
-    name: "Batmobile Remote",
-    price: 199,
-    category: "vehicles",
-    rating: 4,
-    image: "/images/remote.jpg",
-  },
-  {
-    _id: 5,
-    name: "Night Vision Goggles",
-    price: 449,
-    category: "gear",
-    rating: 5,
-    image: "/images/goggles.jpg",
-  },
-  {
-    _id: 6,
-    name: "Smoke Pellets",
-    price: 89,
-    category: "gadgets",
-    rating: 4,
-    image: "/images/pellets.jpg",
-  },
-  {
-    _id: 7,
-    name: "Kevlar Cape",
-    price: 799,
-    category: "armor",
-    rating: 5,
-    image: "/images/cape.jpg",
-  },
-  {
-    _id: 8,
-    name: "Batarang Set",
-    price: 149,
-    category: "weapons",
-    rating: 4,
-    image: "/images/batarang.jpg",
-  },
-  {
-    _id: 9,
-    name: "Wayne Tech Tablet",
-    price: 1299,
-    category: "tech",
-    rating: 5,
-    image: "/images/tablet.jpg",
-  },
-];
+import { QUERY_KEYS } from "../constants/queryKeys";
+import { get } from "../lib/http";
+import { useStandardQuery } from "../lib/useStandardQuery";
 
 const categories = [
   { value: "all", label: "All", icon: "🪷" },
@@ -144,18 +72,79 @@ export default function Products() {
   });
   const navigate = useNavigate();
 
+  const getProduct = () => get("/products");
+
+  const {
+    data: productsData,
+    isLoading,
+    error,
+  } = useStandardQuery(QUERY_KEYS.PRODUCTS.all, getProduct, {
+    errorMsg: "Failed to fetch products",
+  });
+
   const [currentPage, setCurrentPage] = useState(1);
+  const [filteredProducts, setFilteredProducts] = useState(null);
+
+  useEffect(() => {
+    setFilteredProducts(() => productsData?.products || []);
+    setCurrentPage(1); // Reset to first page when products change
+  }, [productsData]);
+
   const itemsPerPage = 6;
 
-  const filteredProducts = useFilteredProducts(productsData, filters);
-  const totalPages = Math.ceil(filteredProducts.length / itemsPerPage);
-  const paginatedProducts = filteredProducts.slice(
+  // Early return for loading state
+  if (isLoading) {
+    return (
+      <div className="min-h-screen bg-black flex items-center justify-center">
+        <div className="animate-spin rounded-full h-16 w-16 border-4 border-yellow-400 border-t-transparent"></div>
+      </div>
+    );
+  }
+
+  // Early return for error state
+  if (error) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center px-4">
+        <Shield className="h-16 w-16 text-red-400 mb-4" />
+        <h2 className="text-2xl font-bold text-white mb-2">
+          Failed to Load Arsenal
+        </h2>
+        <p className="text-gray-400 mb-4">
+          {error.message || "The Batcomputer encountered an error."}
+        </p>
+        <button
+          onClick={() => window.location.reload()}
+          className="px-6 py-2 bg-yellow-400/10 text-yellow-400 rounded-full hover:bg-yellow-400/20 transition-colors"
+        >
+          Try Again
+        </button>
+      </div>
+    );
+  }
+
+  // Handle empty products data
+  if (!productsData?.products?.length) {
+    return (
+      <div className="min-h-screen bg-black flex flex-col items-center justify-center text-center px-4">
+        <Shield className="h-16 w-16 text-yellow-400/50 mb-4" />
+        <h2 className="text-2xl font-bold text-white mb-2">Arsenal Empty</h2>
+        <p className="text-gray-400 max-w-md">
+          The Batcave's arsenal is currently being restocked. Check back later
+          for new equipment.
+        </p>
+      </div>
+    );
+  }
+
+  const totalPages = Math.ceil(filteredProducts?.length / itemsPerPage);
+  const paginatedProducts = filteredProducts?.slice(
     (currentPage - 1) * itemsPerPage,
     currentPage * itemsPerPage
   );
 
   return (
     <div className="min-h-screen bg-black text-white px-6 py-10 max-w-6xl mx-auto">
+      {/* Header and Filters */}
       <div className="mb-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
           <h1 className="text-3xl font-bold">
@@ -164,102 +153,121 @@ export default function Products() {
           </h1>
           <p className="text-gray-500 text-sm mt-1">
             <Shield className="inline-block w-4 h-4 mr-1" />
-            {filteredProducts.length} items found
+            {filteredProducts?.length} items found
           </p>
         </div>
 
-        <div className="flex flex-wrap gap-3">
-          <input
-            type="text"
-            placeholder="Search..."
-            value={filters.search}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, search: e.target.value }))
-            }
-            className="bg-gray-800 text-white px-4 py-2 rounded-md"
-          />
-          <select
-            value={filters.sort}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, sort: e.target.value }))
-            }
-            className="bg-gray-800 text-white px-4 py-2 rounded-md"
-          >
-            {sortOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-          <select
-            value={filters.category}
-            onChange={(e) =>
-              setFilters((f) => ({ ...f, category: e.target.value }))
-            }
-            className="bg-gray-800 text-white px-4 py-2 rounded-md"
-          >
-            {categories.map((cat) => (
-              <option key={cat.value} value={cat.value}>
-                {cat.label}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
-
-      <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
-        {paginatedProducts.map((product) => (
-          <div
-            key={product._id}
-            className="bg-gray-900 border border-gray-800 rounded-xl p-6 group hover:scale-105 transition-transform cursor-pointer"
-          >
-            <img
-              src={product.image}
-              alt={product.name}
-              className="w-full h-48 object-cover rounded-lg mb-4"
+        {/* Only show filters if we have products */}
+        {filteredProducts?.length > 0 && (
+          <div className="flex flex-wrap gap-3">
+            <input
+              type="text"
+              placeholder="Search..."
+              value={filters.search}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, search: e.target.value }))
+              }
+              className="bg-gray-800 text-white px-4 py-2 rounded-md"
             />
-            <div className="text-lg font-bold mb-2 group-hover:text-yellow-400 transition">
-              {product.name}
-            </div>
-            <div className="text-sm text-gray-500 mb-2">
-              {product.category.toUpperCase()}
-            </div>
-            <div className="text-2xl font-black text-yellow-400">
-              ${product.price}
-            </div>
-            <div className="flex gap-1 mt-2">
-              {[...Array(5)].map((_, i) => (
-                <Star
-                  key={i}
-                  className={`h-4 w-4 ${
-                    i < product.rating
-                      ? "text-yellow-400 fill-yellow-400"
-                      : "text-gray-700"
-                  }`}
-                />
-              ))}
-            </div>
-            <button
-              onClick={(e) => {
-                e.stopPropagation();
-                navigate(`/products/${product._id}`);
-              }}
-              className="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 bg-purple-600 text-white rounded-md font-bold hover:bg-purple-700 transition"
+            <select
+              value={filters.sort}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, sort: e.target.value }))
+              }
+              className="bg-gray-800 text-white px-4 py-2 rounded-md"
             >
-              <Eye className="w-4 h-4" />
-              View Details
-            </button>
+              {sortOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+            <select
+              value={filters.category}
+              onChange={(e) =>
+                setFilters((f) => ({ ...f, category: e.target.value }))
+              }
+              className="bg-gray-800 text-white px-4 py-2 rounded-md"
+            >
+              {categories.map((cat) => (
+                <option key={cat.value} value={cat.value}>
+                  {cat.label}
+                </option>
+              ))}
+            </select>
           </div>
-        ))}
+        )}
       </div>
 
-      {filteredProducts.length === 0 && (
+      {/* Product Grid */}
+      {filteredProducts?.length > 0 ? (
+        <div className="grid gap-6 grid-cols-1 sm:grid-cols-2 md:grid-cols-3">
+          {paginatedProducts.map((product) => (
+            <div
+              key={product.id}
+              className="bg-gray-900 border border-gray-800 rounded-xl p-6 group hover:scale-105 transition-transform cursor-pointer"
+            >
+              <img
+                src={product.image}
+                alt={product.name}
+                className="w-full h-48 object-cover rounded-lg mb-4"
+              />
+              <div className="text-lg font-bold mb-2 group-hover:text-yellow-400 transition">
+                {product.name}
+              </div>
+              <div className="text-sm text-gray-500 mb-2">
+                {product.category.toUpperCase()}
+              </div>
+              <div className="text-2xl font-black text-yellow-400">
+                ${product.price}
+              </div>
+              <div className="flex gap-1 mt-2">
+                {[...Array(5)].map((_, i) => (
+                  <Star
+                    key={i}
+                    className={`h-4 w-4 ${
+                      i < product.rating
+                        ? "text-yellow-400 fill-yellow-400"
+                        : "text-gray-700"
+                    }`}
+                  />
+                ))}
+              </div>
+              <button
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(`/products/${product.id}`);
+                }}
+                className="mt-4 flex items-center justify-center gap-2 w-full px-4 py-2 bg-purple-600 text-white rounded-md font-bold hover:bg-purple-700 transition"
+              >
+                <Eye className="w-4 h-4" />
+                View Details
+              </button>
+            </div>
+          ))}
+        </div>
+      ) : (
         <div className="text-center mt-20 text-gray-500">
           <Eye className="mx-auto w-10 h-10 mb-4" />
-          No matching products found.
+          <p className="text-lg">No matching products found.</p>
+          <button
+            onClick={() =>
+              setFilters({
+                search: "",
+                category: "all",
+                sort: "default",
+                minPrice: "",
+                maxPrice: "",
+              })
+            }
+            className="mt-4 px-6 py-2 bg-yellow-400/10 text-yellow-400 rounded-full hover:bg-yellow-400/20 transition-colors"
+          >
+            Reset Filters
+          </button>
         </div>
       )}
 
+      {/* Pagination - only show if we have multiple pages */}
       {totalPages > 1 && (
         <div className="flex justify-center mt-10 gap-4 items-center">
           <button

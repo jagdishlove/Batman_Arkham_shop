@@ -25,14 +25,14 @@ const ProductCard = ({ product }) => {
     }
 
     addToCartMutation.mutate({
-      productId: product._id,
+      productId: product.id,
       quantity: 1,
     })
   }
 
   return (
     <div className="card group hover:shadow-lg transition-shadow duration-200">
-      <Link to={`/products/${product._id}`}>
+      <Link to={`/products/${product.id}`}>
         <div className="relative overflow-hidden rounded-t-lg">
           <img
             src={product.images[0]?.url || "/placeholder.svg?height=200&width=300"}
@@ -48,7 +48,7 @@ const ProductCard = ({ product }) => {
       </Link>
 
       <div className="p-4">
-        <Link to={`/products/${product._id}`}>
+        <Link to={`/products/${product.id}`}>
           <h3 className="font-semibold text-gray-900 mb-2 line-clamp-2 hover:text-blue-600">{product.name}</h3>
         </Link>
 

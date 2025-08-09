@@ -3,29 +3,13 @@ import { createError } from "../utils/error.js";
 
 export const getAllProducts = async (req, res, next) => {
   try {
-    const page = parseInt(req.query.page) || 1;
-    const limit = parseInt(req.query.limit) || 12;
-    const skip = (page - 1) * limit;
-
-    const [products, total] = await Promise.all([
-      Product.find({ isActive: true })
-        .sort({ createdAt: -1 })
-        .skip(skip)
-        .limit(limit),
-      Product.countDocuments({ isActive: true }),
-    ]);
+    const products = await Product.find({ isActive: true })
+      .sort({ createdAt: -1 });
 
     res.json({
       success: true,
       data: {
         products,
-        pagination: {
-          currentPage: page,
-          totalPages: Math.ceil(total / limit),
-          totalProducts: total,
-          hasNext: skip + limit < total,
-          hasPrev: page > 1,
-        },
       },
     });
   } catch (error) {

@@ -19,7 +19,12 @@ export const useStandardQuery = (
 ) => {
   return useQuery({
     queryKey,
-    queryFn,
+    // Transform the nested data structure
+    queryFn: async () => {
+      const response = await queryFn();
+      // Handle API response structure: { success, data: { products } }
+      return response.data.data;
+    },
     enabled,
     onSuccess,
     onError: (error) => {

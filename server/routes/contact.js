@@ -1,5 +1,5 @@
 import express from "express";
-import { authenticate, authorize } from "../middleware/auth.js";
+import { authenticate, authorizeAdmin } from "../middleware/auth.js";
 import {
   submitContact,
   getContacts,
@@ -12,7 +12,7 @@ const router = express.Router();
 router.post("/submit", submitContact);
 
 // Admin only routes
-router.get("/", authenticate, authorize("admin"), getContacts);
-router.patch("/:id", authenticate, authorize("admin"), updateContactStatus);
+router.get("/", authenticate, authorizeAdmin, getContacts);
+router.patch("/:id", authenticate, authorizeAdmin, updateContactStatus);
 
 export default router;

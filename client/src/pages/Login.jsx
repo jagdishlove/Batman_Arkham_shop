@@ -8,11 +8,6 @@ import useAuthStore from "../store/authStore";
 import { post } from "../lib/http";
 import { useStandardMutation } from "../lib/useStandardMutation";
 
-const loginApi = async ({ email, password }) => {
-  const res = await api.post("/auth/login", { email, password });
-  return res.data;
-};
-
 const BatmanLogin = () => {
   const [formData, setFormData] = useState({
     email: "",

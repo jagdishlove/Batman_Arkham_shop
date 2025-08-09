@@ -15,7 +15,7 @@ const BatmanOrders = () => {
   const ordersData = {
     orders: [
       {
-        _id: "1",
+        id: "1",
         orderNumber: "BAT-2024-001",
         createdAt: "2024-08-01T10:30:00Z",
         orderStatus: "delivered",
@@ -43,7 +43,7 @@ const BatmanOrders = () => {
         ],
       },
       {
-        _id: "2",
+        id: "2",
         orderNumber: "BAT-2024-002",
         createdAt: "2024-07-28T14:15:00Z",
         orderStatus: "shipped",
@@ -65,7 +65,7 @@ const BatmanOrders = () => {
         ],
       },
       {
-        _id: "3",
+        id: "3",
         orderNumber: "BAT-2024-003",
         createdAt: "2024-07-25T09:45:00Z",
         orderStatus: "processing",
@@ -174,7 +174,7 @@ const BatmanOrders = () => {
         <div className="space-y-6">
           {orders.map((order) => (
             <div
-              key={order._id}
+              key={order.id}
               className="bg-gray-800/50 border border-gray-700 backdrop-blur-sm p-6 hover:border-gray-600 transition-colors"
             >
               {/* Order Header */}

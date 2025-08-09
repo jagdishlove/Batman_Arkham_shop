@@ -12,7 +12,7 @@ const BatmanProductDetail = () => {
 
   // Mock product data
   const product = {
-    _id: "1",
+    id: "1",
     name: "Advanced Tactical Grappling Hook",
     category: "Tactical Equipment",
     price: 1299.99,

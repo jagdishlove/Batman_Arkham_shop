@@ -204,7 +204,7 @@ const Cart = () => {
           <div className="lg:col-span-2 space-y-4">
             {items.map((item, index) => (
               <div
-                key={item._id}
+                key={item.id}
                 className="group bg-gray-900/40 backdrop-blur-sm border border-gray-800 rounded-xl p-4 sm:p-6 hover:border-gray-700 transition-all duration-300"
               >
                 <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-6">
@@ -225,7 +225,7 @@ const Cart = () => {
                   {/* Product Info */}
                   <div className="flex-1 min-w-0">
                     <button
-                      onClick={() => navigate(`/products/${item._id}`)}
+                      onClick={() => navigate(`/products/${item.id}`)}
                       className="text-lg font-bold text-white hover:text-yellow-400 transition-colors duration-300 block truncate"
                     >
                       {item.name}
@@ -247,7 +247,7 @@ const Cart = () => {
                     <div className="flex items-center gap-3 bg-gray-800/60 rounded-lg p-2">
                       <button
                         onClick={() =>
-                          handleUpdateQuantity(item._id, item.quantity - 1)
+                          handleUpdateQuantity(item.id, item.quantity - 1)
                         }
                         disabled={item.quantity <= 1}
                         className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:hover:bg-gray-700 transition-colors"
@@ -261,7 +261,7 @@ const Cart = () => {
 
                       <button
                         onClick={() =>
-                          handleUpdateQuantity(item._id, item.quantity + 1)
+                          handleUpdateQuantity(item.id, item.quantity + 1)
                         }
                         disabled={item.quantity >= item.stock}
                         className="p-2 rounded-md bg-gray-700 hover:bg-gray-600 disabled:opacity-50 disabled:hover:bg-gray-700 transition-colors"
@@ -276,7 +276,7 @@ const Cart = () => {
                         {formatPrice(item.price * item.quantity)}
                       </p>
                       <button
-                        onClick={() => handleRemoveItem(item._id)}
+                        onClick={() => handleRemoveItem(item.id)}
                         className="p-2 rounded-lg bg-red-600/20 hover:bg-red-600/30 text-red-400 hover:text-red-300 transition-all duration-300 group"
                       >
                         <Trash2 className="h-4 w-4 group-hover:scale-110 transition-transform" />

@@ -3,6 +3,10 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import { batmanToast } from "@/utils/toast";
+import "../styles/home.css";
+import { get, post } from "../lib/http";
+import { useStandardQuery } from "../lib/useStandardQuery";
+import { QUERY_KEYS } from "../constants/queryKeys";
 
 // LoadingSpinner with aria and role for accessibility
 const LoadingSpinner = ({ size }) => (
@@ -17,43 +21,92 @@ const LoadingSpinner = ({ size }) => (
 );
 
 // ProductCard with minor UI improvements (uncomment if using)
-const ProductCard = ({ product, className }) => (
-  <div
-    className={`relative p-6 rounded-2xl shadow-lg border border-gray-800 bg-gray-900/80 backdrop-blur-sm
+const ProductCard = ({ product, className }) => {
+  return (
+    <div
+      className={`relative p-6 flex flex-col justify-center rounded-2xl shadow-lg border border-gray-800 bg-gray-900/80 backdrop-blur-sm
       hover:scale-105 hover:shadow-yellow-400/50 transform transition duration-300 ${className}`}
-  >
-    <div className="bg-gray-700 h-48 rounded-lg mb-4 flex items-center justify-center">
-      <span className="text-gray-400 select-none">Product Image</span>
+    >
+      <div className="bg-gray-800 h-48 rounded-lg mb-4 overflow-hidden">
+        {product?.images?.length > 0 ? (
+          <img
+            src={product.images[0].url}
+            alt={product.images[0].alt || product.name}
+            className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+          />
+        ) : (
+          <div className="w-full h-full flex items-center justify-center">
+            <span className="text-gray-400 select-none">
+              No Image Available
+            </span>
+          </div>
+        )}
+      </div>
+      <div className="space-y-2">
+        <div className="flex items-start justify-between">
+          <h3 className="text-lg font-bold text-white flex-1">
+            {product.name}
+          </h3>
+          {product.category && (
+            <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-full">
+              {product.category}
+            </span>
+          )}
+        </div>
+        <div className="flex justify-between items-center">
+          <p className="text-yellow-400 font-bold">${product.price}</p>
+          {product.originalPrice && (
+            <p className="text-gray-500 line-through text-sm">
+              ${product.originalPrice}
+            </p>
+          )}
+        </div>
+        <div className="flex items-center justify-between">
+          {product.rating && (
+            <div className="flex items-center gap-2">
+              <Star className="h-4 w-4 text-yellow-400 fill-current" />
+              <span className="text-gray-400 text-sm">
+                {product.rating.rate} ({product.rating.count})
+              </span>
+            </div>
+          )}
+          {product.inStock ? (
+            <span className="text-xs text-green-400">In Stock</span>
+          ) : (
+            <span className="text-xs text-red-400">Out of Stock</span>
+          )}
+        </div>
+        {product.brand && (
+          <div className="pt-2 border-t border-gray-800">
+            <span className="text-xs text-gray-500">{product.brand}</span>
+          </div>
+        )}
+      </div>
     </div>
-    <h3 className="text-lg font-bold text-white mb-2">{product.name}</h3>
-    <p className="text-purple-400 font-bold">${product.price}</p>
-  </div>
-);
-
-// Mock hook for featured products
-const useFeaturedProducts = () => ({
-  data: [
-    { _id: 1, name: "Batman Cowl", price: 299 },
-    { _id: 2, name: "Utility Belt", price: 199 },
-    { _id: 3, name: "Grappling Hook", price: 149 },
-    { _id: 4, name: "Batmobile Model", price: 89 },
-    { _id: 5, name: "Dark Knight Cape", price: 179 },
-    { _id: 6, name: "Bat Signal", price: 249 },
-    { _id: 7, name: "Wayne Tech Gadget", price: 399 },
-    { _id: 8, name: "Arkham Mask", price: 129 },
-  ],
-  isLoading: false,
-  error: null,
-});
+  );
+};
 
 const Home = () => {
-  const { data: featuredProducts, isLoading, error } = useFeaturedProducts();
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
   const [loadingProgress, setLoadingProgress] = useState(0);
 
   const { isAuthenticated } = useAuthStore();
   const navigate = useNavigate();
+
+  // New cursor states
+  const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+
+  const getProduct = () => get("/products");
+
+  const {
+    data: products,
+    isLoading,
+    error,
+  } = useStandardQuery(QUERY_KEYS.PRODUCTS.all, getProduct, {
+    errorMsg: "Failed to fetch products",
+  });
 
   // Smooth mouse position for spotlight with easing
   const mousePosRef = useRef({ x: 0, y: 0 });
@@ -87,6 +140,9 @@ const Home = () => {
       x: e.clientX - rect.left,
       y: e.clientY - rect.top,
     };
+
+    // Update cursor position
+    setCursorPosition({ x: e.clientX, y: e.clientY });
   };
 
   useEffect(() => {
@@ -103,6 +159,16 @@ const Home = () => {
     }, 200);
 
     return () => clearInterval(progressInterval);
+  }, []);
+
+  // Update cursor position on mouse move
+  useEffect(() => {
+    const updateCursor = (e) => {
+      setCursorPosition({ x: e.clientX, y: e.clientY });
+    };
+
+    window.addEventListener("mousemove", updateCursor);
+    return () => window.removeEventListener("mousemove", updateCursor);
   }, []);
 
   if (!isLoaded) {
@@ -196,16 +262,28 @@ const Home = () => {
 
   return (
     <main className="min-h-screen bg-black text-gray-200 font-sans overflow-x-hidden">
-      {/* Floating background elements */}
-      <div className="fixed inset-0 pointer-events-none z-0" aria-hidden="true">
-        <div className="absolute top-20 right-20 w-96 h-96 bg-yellow-500 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse"></div>
-        <div className="absolute bottom-40 left-20 w-80 h-80 bg-purple-600 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse animation-delay-2000"></div>
-        <div className="absolute top-1/2 left-1/2 w-64 h-64 bg-blue-600 rounded-full mix-blend-multiply filter blur-3xl opacity-5 animate-pulse animation-delay-4000"></div>
-      </div>
+      {/* Custom Cursor */}
+      {isHovered && (
+        <div
+          className="custom-cursor"
+          style={{
+            left: cursorPosition.x,
+            top: cursorPosition.y,
+          }}
+        >
+          <span className="text-yellow-400 text-2xl" style={{ lineHeight: 0 }}>
+            🦇
+          </span>
+        </div>
+      )}
 
-      {/* Hero Section */}
+      {/* Update your Hero section */}
       <section
-        className="relative h-screen flex items-center justify-center overflow-hidden"
+        className={`relative h-screen flex items-center justify-center overflow-hidden ${
+          isHovered ? "bat-cursor" : ""
+        }`}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
         onMouseMove={handleMouseMove}
         aria-label="Hero section"
       >
@@ -289,7 +367,15 @@ const Home = () => {
               to="/products"
               className="group relative px-12 py-4 text-xl font-bold text-yellow-400 border-2 border-yellow-400 rounded-full
                 hover:bg-yellow-400/10 hover:scale-110 transform transition-all duration-300 overflow-hidden
-                focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-50"
+                focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-50 bat-cursor"
+              onMouseEnter={() => {
+                const cursor = document.querySelector(".custom-cursor");
+                if (cursor) cursor.classList.add("hover");
+              }}
+              onMouseLeave={() => {
+                const cursor = document.querySelector(".custom-cursor");
+                if (cursor) cursor.classList.remove("hover");
+              }}
             >
               <span className="absolute inset-0 bg-yellow-400 opacity-0 group-hover:opacity-10 transition-opacity"></span>
               <span className="relative flex items-center gap-3 select-none">
@@ -441,25 +527,50 @@ const Home = () => {
               <LoadingSpinner size="lg" />
             </div>
           ) : error ? (
-            <p className="text-center text-red-500">
-              Failed to load featured products.
-            </p>
-          ) : (
-            <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
-              {featuredProducts.slice(0, 8).map((product) => (
-                <ProductCard key={product._id} product={product} />
-              ))}
+            <div className="text-center py-20">
+              <p className="text-red-500 text-lg mb-4">
+                Failed to load featured products.
+              </p>
+              <button
+                onClick={() => refetch()}
+                className="px-6 py-2 bg-yellow-400/10 text-yellow-400 rounded-full hover:bg-yellow-400/20 transition-colors"
+              >
+                Try Again
+              </button>
             </div>
-          )}
+          ) : !products?.products?.length ? (
+            <div className="text-center py-20 bg-gray-900/50 rounded-2xl border border-gray-800">
+              <div className="mb-6">
+                <Shield className="h-16 w-16 text-yellow-400/50 mx-auto" />
+              </div>
+              <h3 className="text-2xl font-bold text-gray-400 mb-2">
+                No Products Available
+              </h3>
+              <p className="text-gray-500 max-w-md mx-auto">
+                The Batcave's arsenal is currently being restocked. Check back
+                later for new equipment.
+              </p>
+            </div>
+          ) : (
+            <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-10">
+                {products?.products.slice(0, 8).map((product) => (
+                  <ProductCard key={product.id} product={product} />
+                ))}
+              </div>
 
-          <div className="mt-12 flex justify-center">
-            <Link
-              to="/products"
-              className="px-8 py-3 rounded-full border border-yellow-400 text-yellow-400 font-semibold hover:bg-yellow-400 hover:text-black transition-colors focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-50"
-            >
-              See All Products
-            </Link>
-          </div>
+              <div className="mt-12 flex justify-center">
+                <Link
+                  to="/products"
+                  className="px-8 py-3 rounded-full border border-yellow-400 text-yellow-400 font-semibold 
+              hover:bg-yellow-400 hover:text-black transition-colors 
+              focus:outline-none focus:ring-4 focus:ring-yellow-400 focus:ring-opacity-50"
+                >
+                  See All Products
+                </Link>
+              </div>
+            </>
+          )}
         </div>
       </section>
 
