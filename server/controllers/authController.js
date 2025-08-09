@@ -1,5 +1,5 @@
 import jwt from "jsonwebtoken";
-import User from "../models/User.js";
+import User from "../models/user.js";
 import { createError } from "../utils/error.js";
 
 const generateToken = (userId) => {
@@ -121,10 +121,12 @@ export const getTotalUsers = async (req, res) => {
 export const toggleUserStatus = async (req, res) => {
   try {
     const userId = req.params.id;
-    
+
     const user = await User.findById(userId);
     if (!user) {
-      return res.status(404).json({ success: false, message: "User not found" });
+      return res
+        .status(404)
+        .json({ success: false, message: "User not found" });
     }
 
     user.isActive = !user.isActive;
@@ -132,13 +134,15 @@ export const toggleUserStatus = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: `User ${user.isActive ? 'activated' : 'deactivated'} successfully`,
-      data: { isActive: user.isActive }
+      message: `User ${
+        user.isActive ? "activated" : "deactivated"
+      } successfully`,
+      data: { isActive: user.isActive },
     });
   } catch (error) {
     res.status(500).json({
       success: false,
-      message: "Error toggling user status"
+      message: "Error toggling user status",
     });
   }
 };

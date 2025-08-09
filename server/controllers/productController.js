@@ -1,10 +1,11 @@
-import Product from "../models/Product.js";
+import Product from "../models/product.js";
 import { createError } from "../utils/error.js";
 
 export const getAllProducts = async (req, res, next) => {
   try {
-    const products = await Product.find({ isActive: true })
-      .sort({ createdAt: -1 });
+    const products = await Product.find({ isActive: true }).sort({
+      createdAt: -1,
+    });
 
     res.json({
       success: true,

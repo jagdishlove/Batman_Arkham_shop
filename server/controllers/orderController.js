@@ -1,75 +1,33 @@
-import Order from "../models/Order.js";
-import Cart from "../models/Cart.js";
-import Product from "../models/Product.js";
+import Order from "../models/order.js";
+import { createOrder } from "../services/orderService.js";
 import { createError } from "../utils/error.js";
 
-export const createOrder = async (req, res, next) => {
+export const createOrderHandler = async (req, res, next) => {
   try {
-    const { shippingAddress, paymentMethod } = req.body;
+    const { items, shippingAddress, payment, subtotal, tax, shipping, total } =
+      req.body;
+    const userId = req.user.id;
 
-    // Get cart and validate
-    const cart = await Cart.findOne({ userId: req.user._id }).populate(
-      "items.productId"
+    const order = await createOrder(
+      {
+        items,
+        shippingAddress,
+        payment,
+        subtotal,
+        tax,
+        shipping,
+        total,
+      },
+      userId
     );
-    if (!cart?.items?.length) {
-      return next(createError(400, "Cart is empty"));
-    }
-
-    // Check stock availability
-    for (const item of cart.items) {
-      if (item.productId.stock < item.quantity) {
-        return next(
-          createError(400, `Insufficient stock for ${item.productId.name}`)
-        );
-      }
-    }
-
-    // Calculate totals
-    const subtotal = cart.totalAmount;
-    const tax = subtotal * 0.1;
-    const shipping = subtotal > 100 ? 0 : 10;
-    const total = subtotal + tax + shipping;
-
-    // Create order
-    const order = new Order({
-      userId: req.user._id,
-      items: cart.items.map((item) => ({
-        productId: item.productId._id,
-        name: item.productId.name,
-        price: item.price,
-        quantity: item.quantity,
-        image: item.productId.images[0]?.url || "",
-      })),
-      shippingAddress,
-      paymentMethod,
-      subtotal,
-      tax,
-      shipping,
-      total,
-    });
-
-    await order.save();
-
-    // Update product stock
-    await Promise.all(
-      cart.items.map((item) =>
-        Product.findByIdAndUpdate(item.productId._id, {
-          $inc: { stock: -item.quantity },
-        })
-      )
-    );
-
-    // Clear cart
-    cart.items = [];
-    await cart.save();
 
     res.status(201).json({
       success: true,
       message: "Order created successfully",
-      data: { order },
+      data: order,
     });
   } catch (error) {
-    next(createError(500, "Failed to create order"));
+    next(createError(500, error.message));
   }
 };
 

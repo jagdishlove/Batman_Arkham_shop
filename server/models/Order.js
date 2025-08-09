@@ -1,71 +1,80 @@
-import mongoose from "mongoose"
+// models/order.js
 
-const orderSchema = new mongoose.Schema(
+import mongoose from "mongoose";
+import { customAlphabet } from "nanoid";
+
+// Generates a unique, hard-to-guess order number like BAT-8K4D2N1P
+const nanoid = customAlphabet("0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ", 8);
+
+const OrderSchema = new mongoose.Schema(
   {
-    userId: {
+    // User Reference
+    user: {
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
     },
+
+    // Order Details
     orderNumber: {
       type: String,
-      unique: true,
       required: true,
+      unique: true,
+      default: () => `BAT-${nanoid()}`,
     },
+
+    // Items with product snapshot
     items: [
       {
-        productId: {
+        product: {
           type: mongoose.Schema.Types.ObjectId,
           ref: "Product",
           required: true,
         },
-        name: String,
-        price: Number,
         quantity: Number,
-        image: String,
+        price: Number,
       },
     ],
+
+    // Price Breakdown
+    subtotal: Number,
+    tax: Number,
+    shipping: Number,
+    total: Number,
+
+    // Shipping Details
     shippingAddress: {
       name: String,
       street: String,
       city: String,
       state: String,
       zipCode: String,
-      country: String,
       phone: String,
     },
-    paymentMethod: {
-      type: String,
-      required: true,
+
+    // Payment Details
+    payment: {
+      method: {
+        type: String,
+        enum: ["credit_card", "paypal", "cod"],
+      },
+      status: {
+        type: String,
+        enum: ["pending", "paid", "failed"],
+        default: "pending",
+      },
     },
-    paymentStatus: {
+
+    // Order Status
+    status: {
       type: String,
-      enum: ["pending", "paid", "failed"],
+      enum: ["pending", "confirmed", "shipped", "delivered"],
       default: "pending",
     },
-    orderStatus: {
-      type: String,
-      enum: ["pending", "confirmed", "processing", "shipped", "delivered", "cancelled"],
-      default: "pending",
-    },
-    subtotal: Number,
-    tax: { type: Number, default: 0 },
-    shipping: { type: Number, default: 0 },
-    total: Number,
-    stripePaymentIntentId: String,
   },
-  { timestamps: true },
-)
-
-orderSchema.pre("save", async function (next) {
-  if (!this.orderNumber) {
-    const timestamp = Date.now().toString()
-    const random = Math.floor(Math.random() * 1000)
-      .toString()
-      .padStart(3, "0")
-    this.orderNumber = `ORD-${timestamp}-${random}`
+  {
+    timestamps: true,
   }
-  next()
-})
+);
 
-export default mongoose.model("Order", orderSchema)
+export default mongoose.model("Order", OrderSchema);
