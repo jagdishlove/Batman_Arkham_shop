@@ -53,6 +53,31 @@ export const getUserOrders = async (req, res, next) => {
   }
 };
 
+export const getAllOrders = async (req, res, next) => {
+  try {
+    const orders = await Order.find()
+      .populate({
+        path: "items.product",
+        model: "Product",
+        select: "name price images description category",
+      })
+      .populate({
+        path: "user",
+        model: "User",
+        select: "email name",
+      })
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      data: orders,
+    });
+  } catch (error) {
+    next(createError(500, "Failed to fetch orders"));
+  }
+};
+
 export const getOrderById = async (req, res, next) => {
   try {
     const order = await Order.findOne({
@@ -70,5 +95,53 @@ export const getOrderById = async (req, res, next) => {
     });
   } catch (error) {
     next(createError(500, "Failed to fetch order"));
+  }
+};
+
+export const updateOrderStatus = async (req, res, next) => {
+  try {
+    const { orderId } = req.params;
+    const { status } = req.body;
+    const userId = req.user.id;
+
+    // Validate status
+    const validStatuses = ["pending", "confirmed", "shipped", "delivered"];
+    if (!validStatuses.includes(status)) {
+      throw createError(400, "Invalid status value");
+    }
+
+    const updatedOrder = await Order.findByIdAndUpdate(
+      orderId,
+      {
+        $set: { status },
+        $push: {
+          statusHistory: {
+            status,
+            updatedBy: userId,
+            timestamp: new Date(),
+          },
+        },
+      },
+      { new: true }
+    )
+      .populate({
+        path: "items.product",
+        select: "name price images description category",
+      })
+      .populate({
+        path: "user",
+        select: "email name",
+      });
+
+    if (!updatedOrder) {
+      throw createError(404, "Order not found");
+    }
+
+    res.status(200).json({
+      success: true,
+      data: updatedOrder,
+    });
+  } catch (error) {
+    next(createError(error.status || 500, error.message));
   }
 };

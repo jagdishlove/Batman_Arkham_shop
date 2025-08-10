@@ -12,6 +12,7 @@ import { useStandardQuery } from "../../lib/useStandardQuery";
 import { QUERY_KEYS } from "../../constants/queryKeys";
 import { ProductsSection } from "./ProductSection";
 import { useQueryClient } from "@tanstack/react-query";
+import OrderSection from "./OrderSection";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("products");
@@ -23,6 +24,13 @@ const Dashboard = () => {
     isLoading: productsLoading,
     error: productsError,
   } = useStandardQuery(QUERY_KEYS.PRODUCTS.all, () => get("/products"), {
+    errorMsg: "Failed to fetch products",
+  });
+  const {
+    data: orders,
+    isLoading: orderLoading,
+    error: orderError,
+  } = useStandardQuery("orders", () => get("/orders/all"), {
     errorMsg: "Failed to fetch products",
   });
 
@@ -50,8 +58,8 @@ const Dashboard = () => {
         return products?.products?.length || 0;
       case "totalUsers":
         return usersStats?.total || 0;
-      case "activeUsers":
-        return usersStats?.active || 0;
+      case "totalOrders":
+        return orders?.length || 0;
       default:
         return 0;
     }
@@ -71,8 +79,8 @@ const Dashboard = () => {
       color: "text-blue-400",
     },
     {
-      label: "Active Users",
-      value: renderStatValue("activeUsers"),
+      label: "Total Orders",
+      value: renderStatValue("totalOrders"),
       icon: UserCheck,
       color: "text-green-400",
     },
@@ -86,6 +94,14 @@ const Dashboard = () => {
             products={products}
             isLoading={productsLoading}
             error={productsError}
+          />
+        );
+      case "orders":
+        return (
+          <OrderSection
+            orders={orders}
+            orderLoading={orderLoading}
+            orderError={orderError}
           />
         );
       case "users":
