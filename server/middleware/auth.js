@@ -1,36 +1,39 @@
-import jwt from "jsonwebtoken"
-import User from "../models/user.js"
+import jwt from "jsonwebtoken";
+import user from "../models/user.js";
 
 export const authenticate = async (req, res, next) => {
   try {
-    const token = req.header("Authorization")?.replace("Bearer ", "")
+    const token = req.header("Authorization")?.replace("Bearer ", "");
 
     if (!token) {
       return res.status(401).json({
         success: false,
         message: "Access denied. No token provided.",
-      })
+      });
     }
 
-    const decoded = jwt.verify(token, process.env.JWT_SECRET || "your-secret-key")
-    const user = await User.findById(decoded.userId).select("-password")
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET || "your-secret-key"
+    );
+    const user = await user.findById(decoded.userId).select("-password");
 
     if (!user) {
       return res.status(401).json({
         success: false,
         message: "Invalid token. User not found.",
-      })
+      });
     }
 
-    req.user = user
-    next()
+    req.user = user;
+    next();
   } catch (error) {
     res.status(401).json({
       success: false,
       message: "Invalid token.",
-    })
+    });
   }
-}
+};
 
 export const authorizeAdmin = (req, res, next) => {
   // We check if req.user was set by the authenticate middleware
