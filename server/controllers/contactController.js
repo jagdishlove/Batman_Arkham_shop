@@ -66,3 +66,18 @@ export const updateContactStatus = async (req, res, next) => {
     next(createError(500, "Failed to update message status"));
   }
 };
+
+export const createContact = async (req, res, next) => {
+  try {
+    const contact = new Contact(req.body);
+    const savedContact = await contact.save();
+    
+    res.status(201).json({
+      success: true,
+      message: "Message sent successfully",
+      data: savedContact
+    });
+  } catch (error) {
+    next(createError(500, "Failed to send message"));
+  }
+};
