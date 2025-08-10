@@ -13,6 +13,7 @@ import { adminRoutes } from "./routes/adminRoutes";
 import UserRoute from "./routes/protectedRoutes/UserRoute";
 import AdminRoute from "./routes/protectedRoutes/AdminRoute";
 import PublicRouteGuard from "./routes/publicRoutes/PublicRoute";
+import CookieConsent from "./components/UI/CookieConsent";
 
 function App() {
   return (
@@ -63,6 +64,7 @@ function App() {
           <Footer />
         </div>
         <ToastContainer />
+        <CookieConsent />
       </Router>
     </QueryClientProvider>
   );
