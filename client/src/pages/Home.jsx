@@ -8,7 +8,6 @@ import { get, post } from "../lib/http";
 import { useStandardQuery } from "../lib/useStandardQuery";
 import { QUERY_KEYS } from "../constants/queryKeys";
 
-// LoadingSpinner with aria and role for accessibility
 const LoadingSpinner = ({ size }) => (
   <div
     role="status"
@@ -97,6 +96,9 @@ const Home = () => {
   // New cursor states
   const [cursorPosition, setCursorPosition] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
+  const [introScreen, setIntroScreen] = useState(
+    sessionStorage.getItem("introScreen") === "true"
+  );
 
   const getProduct = () => get("/products");
 
@@ -146,6 +148,7 @@ const Home = () => {
   };
 
   useEffect(() => {
+    sessionStorage.setItem("introScreen", "true");
     // Simulate loading progress
     const progressInterval = setInterval(() => {
       setLoadingProgress((prev) => {
@@ -190,7 +193,7 @@ const Home = () => {
     navigate("/products");
   };
 
-  if (!isLoaded) {
+  if (!isLoaded && !introScreen) {
     return (
       <main
         className="fixed inset-0 bg-black flex flex-col items-center justify-center z-50 overflow-hidden"
