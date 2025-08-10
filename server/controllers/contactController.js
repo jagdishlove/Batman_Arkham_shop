@@ -1,4 +1,4 @@
-import Contact from "../models/Contact.js";
+import Contact from "../models/temp.js";
 import { createError } from "../utils/error.js";
 
 export const submitContact = async (req, res, next) => {
