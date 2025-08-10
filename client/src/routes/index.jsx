@@ -1,7 +1,6 @@
 import Home from "@/pages/Home";
 import BatmanLogin from "../pages/Login";
 import BatmanSignup from "../pages/Signup";
-import Products from "../pages/Products";
 import BatmanProductDetail from "../pages/ProductDetail";
 import ContactUs from "../pages/ContactUs";
 import Privacy from "../pages/Privacy";
@@ -20,10 +19,6 @@ export const publicRoutes = [
   {
     path: "/signup",
     element: <BatmanSignup />,
-  },
-  {
-    path: "/products",
-    element: <Products />,
   },
   {
     path: "/products/:id",
