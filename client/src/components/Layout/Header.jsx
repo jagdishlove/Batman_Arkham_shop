@@ -13,6 +13,7 @@ import { Link, useNavigate } from "react-router-dom";
 import logo from "@/assets/logo.svg"; // Assuming you have a logo image
 import useAuthStore from "../../store/authStore";
 import useCartStore from "../../store/cartStore";
+import { batmanToast } from "../../utils/toast";
 
 const useCart = () => ({
   data: { items: [{ quantity: 2 }, { quantity: 1 }] },
@@ -72,32 +73,15 @@ const Header = () => {
   }, [isMenuOpen]);
 
   // First, update the handleLogout function to be more robust
-  const handleLogout = useCallback(async () => {
-    try {
-      // Close mobile menu first
-      setIsMenuOpen(false);
+  const handleLogout = useCallback(() => {
+    // 1. Close menu first
+    setIsMenuOpen(false);
 
-      // Get current role before logout
-      const wasAdmin = user?.role === "admin";
+    navigate("/");
 
-      // Perform logout
-      await logout();
-
-      // Clear any other stores if needed (like cart)
-      // Example: clearCart();
-
-      // Navigate based on previous role
-      if (wasAdmin) {
-        // For admin, navigate to login
-        navigate("/login", { replace: true });
-      } else {
-        // For regular users, navigate to home
-        navigate("/", { replace: true });
-      }
-    } catch (error) {
-      console.error("Logout failed:", error);
-    }
-  }, [logout, navigate, user?.role]);
+    batmanToast.success("Successfully logged out");
+    logout();
+  }, [logout, navigate]);
 
   const handleMenuItemClick = () => {
     setIsMenuOpen(false);
