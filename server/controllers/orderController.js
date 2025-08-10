@@ -1,4 +1,4 @@
-import Order from "../models/order.js";
+import Order from "../models/Order.js";
 import { createOrder } from "../services/orderService.js";
 import { createError } from "../utils/error.js";
 
