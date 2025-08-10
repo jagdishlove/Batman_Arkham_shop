@@ -1,4 +1,4 @@
-import Cart from "../models/cart.js";
+import Cart from "../models/Cart.js";
 import Product from "../models/Product.js";
 import { createError } from "../utils/error.js";
 
