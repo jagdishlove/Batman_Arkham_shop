@@ -1,11 +1,61 @@
 import jwt from "jsonwebtoken";
 import User from "../models/User.js";
 import { createError } from "../utils/error.js";
+import bcryptjs from "bcryptjs";
 
 const generateToken = (userId) => {
   return jwt.sign({ userId }, process.env.JWT_SECRET || "your-secret-key", {
     expiresIn: "7d",
   });
+};
+
+export const updatePassword = async (req, res, next) => {
+  try {
+    const { password, confirmPassword } = req.body;
+    const userId = req.user.id;
+
+    // Validate passwords
+    if (!password || !confirmPassword) {
+      throw createError(400, "Both passwords are required");
+    }
+
+    if (password !== confirmPassword) {
+      throw createError(400, "Passwords do not match");
+    }
+
+    // Validate password strength
+    const passwordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{8,}$/;
+    if (!passwordRegex.test(password)) {
+      throw createError(
+        400,
+        "Password must be at least 8 characters long and contain uppercase, lowercase, number and special character"
+      );
+    }
+
+    // Hash new password
+    const salt = await bcryptjs.genSalt(10);
+    const hashedPassword = await bcryptjs.hash(password, salt);
+
+    // Update user password
+    const updatedUser = await User.findByIdAndUpdate(
+      userId,
+      { $set: { password: hashedPassword } },
+      { new: true }
+    ).select("-password");
+
+    if (!updatedUser) {
+      throw createError(404, "User not found");
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Password updated successfully",
+      data: updatedUser,
+    });
+  } catch (error) {
+    next(error);
+  }
 };
 
 export const register = async (req, res, next) => {
@@ -118,15 +168,13 @@ export const getTotalUsers = async (req, res) => {
   }
 };
 
-export const toggleUserStatus = async (req, res) => {
+export const toggleUserStatus = async (req, res, next) => {
   try {
-    const userId = req.params.id;
+    const userId = req.user.id;
 
     const user = await User.findById(userId);
     if (!user) {
-      return res
-        .status(404)
-        .json({ success: false, message: "User not found" });
+      throw createError(404, "User not found");
     }
 
     user.isActive = !user.isActive;
@@ -137,12 +185,11 @@ export const toggleUserStatus = async (req, res) => {
       message: `User ${
         user.isActive ? "activated" : "deactivated"
       } successfully`,
-      data: { isActive: user.isActive },
+      data: {
+        isActive: user.isActive,
+      },
     });
   } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: "Error toggling user status",
-    });
+    next(error);
   }
 };

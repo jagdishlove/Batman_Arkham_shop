@@ -1,9 +1,9 @@
 import Cart from "@/pages/Cart";
 import Checkout from "@/pages/Checkout";
-import Orders from "@/pages/Orders";
 import OrderConfirmation from "@/pages/OrderConfirmation";
 import OrderHistory from "../pages/OrderHistory";
 import Products from "../pages/Products";
+import Profile from "../pages/Profile";
 
 export const userRoutes = [
   {
@@ -25,5 +25,9 @@ export const userRoutes = [
   {
     path: "order-confirmation/:id",
     element: <OrderConfirmation />,
+  },
+  {
+    path: "profile",
+    element: <Profile />,
   },
 ];

@@ -14,7 +14,7 @@ const BatmanProductDetail = () => {
   const [selectedImage, setSelectedImage] = useState(0);
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
-  const addItem = useCartStore((state) => state.addItem);
+  const { addToCart, getAvailableStock, setInitialStock } = useCartStore();
 
   // Reset selected image when product changes
   useEffect(() => {
@@ -39,6 +39,15 @@ const BatmanProductDetail = () => {
 
   // Safely access product data
   const product = productData?.product;
+
+  useEffect(() => {
+    if (product?.stock) {
+      setInitialStock(product.id, product.stock);
+    }
+  }, [product?.stock, product?.id, setInitialStock]);
+
+  const availableStock = getAvailableStock(product?.id);
+  const isOutOfStock = availableStock <= 0;
 
   // Loading state
   if (isLoading) {
@@ -74,21 +83,13 @@ const BatmanProductDetail = () => {
     navigate("/products");
   };
 
-  const isAuthenticated = true; // Mock auth state
-
   const handleAddToCart = () => {
-    if (!isAuthenticated) {
-      batmanToast.error("Authentication required");
-      return;
+    const success = addToCart(product);
+    if (success) {
+      batmanToast.success("Added to loadout");
+    } else {
+      batmanToast.error("Item out of stock");
     }
-
-    if (!product.inStock) {
-      batmanToast.error("Item currently unavailable");
-      return;
-    }
-
-    addItem(product, quantity);
-    batmanToast.success(`${product.name} added to your loadout`);
   };
 
   // Images safety check
@@ -177,7 +178,7 @@ const BatmanProductDetail = () => {
             </div>
 
             {/* Price */}
-            <div className="flex items-baseline space-x-4">
+            <div className="flex flex-wrap justify-center items-baseline space-x-4">
               <span className="text-3xl font-light text-white">
                 {formatPrice(product?.price)}
               </span>
@@ -244,11 +245,15 @@ const BatmanProductDetail = () => {
             {/* Add to Cart */}
             <button
               onClick={handleAddToCart}
-              disabled={!product?.inStock}
-              className="w-full bg-yellow-400 hover:bg-yellow-300 text-black font-medium py-4 px-6 tracking-widest transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-3"
+              disabled={isOutOfStock}
+              className={`w-full py-3 px-4 rounded-lg font-bold transition-all duration-300
+                ${
+                  isOutOfStock
+                    ? "bg-gray-800 text-gray-500 cursor-not-allowed"
+                    : "bg-gradient-to-r from-yellow-400 to-orange-500 text-black hover:from-yellow-300 hover:to-orange-400"
+                }`}
             >
-              <ShoppingCart className="h-5 w-5" />
-              <span>ADD TO LOADOUT</span>
+              {isOutOfStock ? "OUT OF STOCK" : "ADD TO LOADOUT"}
             </button>
 
             {/* Tags */}

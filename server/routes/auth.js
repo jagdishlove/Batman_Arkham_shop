@@ -6,6 +6,7 @@ import {
   getProfile,
   getTotalUsers,
   toggleUserStatus,
+  updatePassword,
 } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -14,7 +15,8 @@ const router = express.Router();
 router.post("/register", register);
 router.post("/login", login);
 router.get("/profile", authenticate, getProfile);
-router.patch("/users/:id/toggle-status", authenticate, toggleUserStatus);
+router.patch("/update-password", authenticate, updatePassword);
+router.patch("/users/deactivate", authenticate, toggleUserStatus);
 
 // Admin routes
 router.get("/users/stats", authenticate, authorizeAdmin, getTotalUsers);
