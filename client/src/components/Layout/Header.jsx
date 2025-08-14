@@ -205,15 +205,26 @@ const Header = () => {
 
                       {/* Hide My Orders for admins */}
                       {!isAdmin && (
-                        <Link
-                          to="/orders"
-                          className="block px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-200 mx-2 rounded-lg"
-                        >
-                          <div className="flex items-center gap-3">
-                            <Star className="h-4 w-4" />
-                            My Orders
-                          </div>
-                        </Link>
+                        <>
+                          <Link
+                            to="/orders"
+                            className="block px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-200 mx-2 rounded-lg"
+                          >
+                            <div className="flex items-center gap-3">
+                              <Star className="h-4 w-4" />
+                              My Orders
+                            </div>
+                          </Link>
+                          <Link
+                            to="/profile"
+                            className="block px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-200 mx-2 rounded-lg"
+                          >
+                            <div className="flex items-center gap-3">
+                              <Star className="h-4 w-4" />
+                              Profile
+                            </div>
+                          </Link>
+                        </>
                       )}
 
                       <button
@@ -278,10 +289,14 @@ const Header = () => {
               <div className="max-w-7xl mx-auto px-4 py-3">
                 {/* Add User Profile Section at Top */}
                 {isAuthenticated && (
-                  <div className="mb-6 p-4 border-b border-gray-800">
+                  <Link 
+                    to="/profile"
+                    onClick={handleMenuItemClick}
+                    className="block mb-6 p-4 border-b border-gray-800 hover:bg-gray-900/50 transition-colors"
+                  >
                     <div className="flex items-center gap-3">
-                      <div className="p-3 rounded-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/20">
-                        <User className="h-6 w-6 text-purple-400" />
+                      <div className="p-3 rounded-full bg-gradient-to-r from-purple-600/20 to-blue-600/20 border border-purple-500/20 group-hover:border-yellow-500/20">
+                        <User className="h-6 w-6 text-purple-400 group-hover:text-yellow-400 transition-colors" />
                       </div>
                       <div>
                         <h3 className="text-lg font-bold bg-gradient-to-r from-purple-400 to-blue-400 bg-clip-text text-transparent">
@@ -290,7 +305,7 @@ const Header = () => {
                         <p className="text-sm text-gray-400">{user?.email}</p>
                       </div>
                     </div>
-                  </div>
+                  </Link>
                 )}
 
                 <nav className="space-y-4">
