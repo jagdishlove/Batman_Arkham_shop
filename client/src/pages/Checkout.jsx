@@ -4,10 +4,10 @@ import { useState } from "react";
 import { useNavigate, Link } from "react-router-dom";
 import { batmanToast } from "@/utils/toast";
 import { Shield, Lock } from "lucide-react";
-import { formatPrice } from "../utils";
-import useCartStore from "../store/cartStore";
-import { post } from "../lib/http";
-import { useStandardMutation } from "../lib/useStandardMutation";
+import { useStandardMutation } from "@/lib/useStandardMutation";
+import { post } from "@/lib/http";
+import useCartStore from "@/store/cartStore";
+import { formatPrice } from "@/utils";
 
 const PAYMENT_METHODS = {
   CARD: "credit_card",

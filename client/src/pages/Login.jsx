@@ -1,12 +1,9 @@
 import { useEffect, useState } from "react";
 import { Eye, EyeOff, Shield, AlertCircle, CheckCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useMutation } from "@tanstack/react-query";
-import api from "@/lib/api"; // <-- use your custom axios instance
-
-import useAuthStore from "../store/authStore";
-import { post } from "../lib/http";
-import { useStandardMutation } from "../lib/useStandardMutation";
+import { useStandardMutation } from "@/lib/useStandardMutation";
+import { post } from "@/lib/http";
+import useAuthStore from "@/store/authStore";
 
 const BatmanLogin = () => {
   const [formData, setFormData] = useState({

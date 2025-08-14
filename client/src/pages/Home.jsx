@@ -3,10 +3,10 @@ import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
 import { batmanToast } from "@/utils/toast";
-import "../styles/home.css";
-import { get, post } from "../lib/http";
-import { useStandardQuery } from "../lib/useStandardQuery";
-import { QUERY_KEYS } from "../constants/queryKeys";
+import "@/styles/home.css";
+import { QUERY_KEYS } from "@/constants/queryKeys";
+import { get } from "@/lib/http";
+import { useStandardQuery } from "@/lib/useStandardQuery";
 
 const LoadingSpinner = ({ size }) => (
   <div

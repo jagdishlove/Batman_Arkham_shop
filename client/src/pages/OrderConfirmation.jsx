@@ -5,7 +5,7 @@ import { CheckCircle, Package } from "lucide-react";
 import { useOrder } from "@/hooks/useOrders";
 import { formatDate } from "@/lib/utils";
 import LoadingSpinner from "@/components/UI/LoadingSpinner";
-import { formatPrice } from "../utils";
+import { formatPrice } from "@/utils";
 
 const OrderConfirmation = () => {
   const { id } = useParams();

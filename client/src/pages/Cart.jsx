@@ -11,10 +11,10 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import useCartStore from "../store/cartStore";
 import { batmanToast } from "@/utils/toast"; // Adjust path as needed
-import useAuthStore from "../store/authStore";
-import { formatPrice } from "../utils";
+import useCartStore from "@/store/cartStore";
+import { formatPrice } from "@/utils";
+import useAuthStore from "@/store/authStore";
 
 // Mock components and hooks
 const LoadingSpinner = ({ size }) => (
@@ -30,16 +30,8 @@ const Cart = () => {
   const navigate = useNavigate();
 
   // Get cart data and actions from Zustand store
-  const { items, updateQuantity, removeItem, clearCart, getCartTotal } =
-    useCartStore((state) => ({
-      items: state.items,
-      updateQuantity: state.updateQuantity,
-      removeItem: state.removeItem,
-      clearCart: state.clearCart,
-      getCartTotal: state.getCartTotal,
-    }));
-
-
+  const { items, updateQuantity, removeFromCart, clearCart, getCartTotal } =
+    useCartStore();
 
   // Calculate totals
   const subtotal = getCartTotal();
@@ -56,7 +48,7 @@ const Cart = () => {
   };
 
   const handleRemoveItem = (productId) => {
-    removeItem(productId);
+    removeFromCart(productId);
     batmanToast.success("Item removed from storage");
   };
 
@@ -243,7 +235,7 @@ const Cart = () => {
                   </div>
 
                   {/* Controls Section */}
-                  <div className="flex flex-row sm:flex-col justify-between items-center sm:items-end gap-4 mt-4 sm:mt-0">
+                  <div className="flex flex-row flex-wrap sm:flex-col justify-between items-center sm:items-end gap-4 mt-4 sm:mt-0">
                     {/* Quantity Controls */}
                     <div className="flex items-center gap-3 bg-gray-800/60 rounded-lg p-2">
                       <button
@@ -332,7 +324,7 @@ const Cart = () => {
                     </span>
                   </div>
 
-                  <div className="flex justify-between items-center py-3 bg-gray-800/40 rounded-lg px-4">
+                  <div className="flex flex-wrap justify-between items-center py-3 bg-gray-800/40 rounded-lg px-4">
                     <span className="text-lg font-black text-yellow-400">
                       TOTAL COST
                     </span>

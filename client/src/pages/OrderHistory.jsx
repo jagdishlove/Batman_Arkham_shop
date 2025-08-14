@@ -1,8 +1,7 @@
-import { useState } from "react";
 import { useStandardQuery } from "@/lib/useStandardQuery";
 import { get } from "@/lib/http";
 import { Shield } from "lucide-react";
-import { formatDate, formatPrice } from "../utils";
+import { formatDate, formatPrice } from "@/utils";
 
 const statusColors = {
   pending: "bg-yellow-500/20 text-yellow-500",

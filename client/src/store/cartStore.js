@@ -53,12 +53,11 @@ const useCartStore = create(
         return true;
       },
 
-      // Update removeFromCart
-      removeFromCart: (productId) => {
+      // Fix removeFromCart implementation
+      removeFromCart: (productId) => 
         set((state) => ({
-          items: state.items.filter((item) => item.id !== productId),
-        }));
-      },
+          items: state.items.filter(item => item.id !== productId)
+        })),
 
       updateQuantity: (productId, quantity) =>
         set((state) => {
