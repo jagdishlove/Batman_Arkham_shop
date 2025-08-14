@@ -1,4 +1,4 @@
-import { ShoppingBag, Truck, Shield, Zap, Eye, Moon, Star } from "lucide-react";
+import { ShoppingBag, Truck, Shield, Eye, Moon } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import useAuthStore from "../store/authStore";
@@ -8,6 +8,7 @@ import { QUERY_KEYS } from "@/constants/queryKeys";
 import { get } from "@/lib/http";
 import { useStandardQuery } from "@/lib/useStandardQuery";
 
+// Separate Loading Component
 const LoadingSpinner = ({ size }) => (
   <div
     role="status"
@@ -16,75 +17,58 @@ const LoadingSpinner = ({ size }) => (
     className={`animate-spin rounded-full border-4 border-purple-400 border-t-transparent ${
       size === "lg" ? "h-16 w-16" : "h-8 w-8"
     }`}
-  ></div>
+  />
 );
 
-// ProductCard with minor UI improvements (uncomment if using)
-const ProductCard = ({ product, className }) => {
-  return (
-    <div
-      className={`relative p-6 flex flex-col justify-center rounded-2xl shadow-lg border border-gray-800 bg-gray-900/80 backdrop-blur-sm
-      hover:scale-105 hover:shadow-yellow-400/50 transform transition duration-300 ${className}`}
-    >
-      <div className="bg-gray-800 h-48 rounded-lg mb-4 overflow-hidden">
-        {product?.images?.length > 0 ? (
-          <img
-            src={product.images[0].url}
-            alt={product.images[0].alt || product.name}
-            className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
-          />
-        ) : (
-          <div className="w-full h-full flex items-center justify-center">
-            <span className="text-gray-400 select-none">
-              No Image Available
-            </span>
-          </div>
-        )}
-      </div>
+// Product Card Component
+const ProductCard = ({ product, className }) => (
+  <div
+    className={`relative h-[400px] p-6 flex flex-col rounded-2xl shadow-lg border border-gray-800 bg-gray-900/80 backdrop-blur-sm
+    hover:scale-105 hover:shadow-yellow-400/50 transform transition duration-300 ${className}`}
+  >
+    <div className="flex-shrink-0 bg-gray-800 h-48 rounded-lg mb-4 overflow-hidden">
+      {product?.images?.length > 0 ? (
+        <img
+          src={product.images[0].url}
+          alt={product.images[0].alt || product.name}
+          className="w-full h-full object-cover hover:scale-110 transition-transform duration-300"
+        />
+      ) : (
+        <div className="w-full h-full flex items-center justify-center">
+          <span className="text-gray-400 select-none">No Image Available</span>
+        </div>
+      )}
+    </div>
+    <div className="flex flex-col justify-between flex-1">
       <div className="space-y-2">
-        <div className="flex items-start justify-between">
-          <h3 className="text-lg font-bold text-white flex-1">
+        <div className="flex items-start justify-between gap-2">
+          <h3 className="text-lg font-bold text-white flex-1 line-clamp-2">
             {product.name}
           </h3>
           {product.category && (
-            <span className="text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-full">
+            <span className="flex-shrink-0 text-xs bg-gray-800 text-gray-400 px-2 py-1 rounded-full">
               {product.category}
             </span>
           )}
         </div>
-        <div className="flex justify-between items-center">
-          <p className="text-yellow-400 font-bold">${product.price}</p>
-          {product.originalPrice && (
-            <p className="text-gray-500 line-through text-sm">
-              ${product.originalPrice}
-            </p>
-          )}
-        </div>
-        <div className="flex items-center justify-between">
-          {product.rating && (
-            <div className="flex items-center gap-2">
-              <Star className="h-4 w-4 text-yellow-400 fill-current" />
-              <span className="text-gray-400 text-sm">
-                {product.rating.rate} ({product.rating.count})
-              </span>
-            </div>
-          )}
-          {product.inStock ? (
-            <span className="text-xs text-green-400">In Stock</span>
-          ) : (
-            <span className="text-xs text-red-400">Out of Stock</span>
-          )}
-        </div>
-        {product.brand && (
-          <div className="pt-2 border-t border-gray-800">
-            <span className="text-xs text-gray-500">{product.brand}</span>
-          </div>
+        <p className="text-gray-400 text-sm line-clamp-3">
+          {product.description}
+        </p>
+      </div>
+
+      <div className="flex justify-between items-center mt-4">
+        <p className="text-yellow-400 font-bold">${product.price}</p>
+        {product.originalPrice && (
+          <p className="text-gray-500 line-through text-sm">
+            ${product.originalPrice}
+          </p>
         )}
       </div>
     </div>
-  );
-};
+  </div>
+);
 
+// Main Home Component
 const Home = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isLoaded, setIsLoaded] = useState(false);
