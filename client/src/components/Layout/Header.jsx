@@ -199,7 +199,7 @@ const Header = () => {
                       </span>
                     </button>
 
-                    {/* Dropdown with glassmorphism */}
+                    {/* Dropdown menu */}
                     <div className="absolute right-0 mt-3 w-56 bg-gray-900/90 backdrop-blur-xl rounded-2xl shadow-2xl shadow-purple-500/20 py-2 opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-300 transform translate-y-2 group-hover:translate-y-0 border border-gray-700/50">
                       <div className="absolute -top-2 right-6 w-4 h-4 bg-gray-900/90 backdrop-blur-xl transform rotate-45 border-l border-t border-gray-700/50"></div>
 
@@ -207,21 +207,21 @@ const Header = () => {
                       {!isAdmin && (
                         <>
                           <Link
-                            to="/orders"
-                            className="block px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-200 mx-2 rounded-lg"
-                          >
-                            <div className="flex items-center gap-3">
-                              <Star className="h-4 w-4" />
-                              My Orders
-                            </div>
-                          </Link>
-                          <Link
                             to="/profile"
                             className="block px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-200 mx-2 rounded-lg"
                           >
                             <div className="flex items-center gap-3">
                               <Star className="h-4 w-4" />
                               Profile
+                            </div>
+                          </Link>
+                          <Link
+                            to="/orders"
+                            className="block px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-200 mx-2 rounded-lg"
+                          >
+                            <div className="flex items-center gap-3">
+                              <Star className="h-4 w-4" />
+                              My Orders
                             </div>
                           </Link>
                         </>
@@ -289,7 +289,7 @@ const Header = () => {
               <div className="max-w-7xl mx-auto px-4 py-3">
                 {/* Add User Profile Section at Top */}
                 {isAuthenticated && (
-                  <Link 
+                  <Link
                     to="/profile"
                     onClick={handleMenuItemClick}
                     className="block mb-6 p-4 border-b border-gray-800 hover:bg-gray-900/50 transition-colors"
