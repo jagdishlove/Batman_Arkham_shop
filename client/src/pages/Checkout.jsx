@@ -386,28 +386,34 @@ const BatmanCheckout = () => {
 
                 {/* Order Items */}
                 <div className="space-y-6 mb-8">
-                  {items.map((item) => (
-                    <div key={item.id} className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-gray-800 border border-gray-700 flex items-center justify-center">
-                        <img
-                          src={item.image}
-                          alt={item.name}
-                          className="w-full h-full object-cover"
-                        />
-                      </div>
-                      <div className="flex-1">
-                        <p className="text-gray-200 text-sm tracking-wide">
-                          {item.name}
+                  {items.map((item) => {
+                    console.log("items", items);
+                    return (
+                      <div
+                        key={item.id}
+                        className="flex items-center space-x-4"
+                      >
+                        <div className="w-12 h-12 bg-gray-800 border border-gray-700 flex items-center justify-center">
+                          <img
+                            src={item.images[0].url}
+                            alt={item.name}
+                            className="w-full h-full object-cover"
+                          />
+                        </div>
+                        <div className="flex-1">
+                          <p className="text-gray-200 text-sm tracking-wide">
+                            {item.name}
+                          </p>
+                          <p className="text-gray-500 text-xs">
+                            QTY: {item.quantity}
+                          </p>
+                        </div>
+                        <p className="text-yellow-400 font-light">
+                          {formatPrice(item.price * item.quantity)}
                         </p>
-                        <p className="text-gray-500 text-xs">
-                          QTY: {item.quantity}
-                        </p>
                       </div>
-                      <p className="text-yellow-400 font-light">
-                        {formatPrice(item.price * item.quantity)}
-                      </p>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
 
                 {/* Totals */}
