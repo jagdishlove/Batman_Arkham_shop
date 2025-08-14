@@ -1,7 +1,6 @@
 import {
   ShoppingCart,
   User,
-  Search,
   Menu,
   LogOut,
   Zap,
@@ -211,7 +210,7 @@ const Header = () => {
                             className="block px-6 py-3 text-sm text-gray-300 hover:text-white hover:bg-gradient-to-r hover:from-purple-600/20 hover:to-blue-600/20 transition-all duration-200 mx-2 rounded-lg"
                           >
                             <div className="flex items-center gap-3">
-                              <Star className="h-4 w-4" />
+                              <User className="h-4 w-4" />
                               Profile
                             </div>
                           </Link>
