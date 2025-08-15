@@ -197,15 +197,70 @@ export const toggleUserStatus = async (req, res, next) => {
 export const getAllUsers = async (req, res, next) => {
   try {
     const users = await User.find()
-      .select('-password')
+      .select("-password")
       .sort({ createdAt: -1 })
       .lean();
 
     res.status(200).json({
       success: true,
-      data: users
+      data: users,
     });
   } catch (error) {
     next(createError(500, "Failed to fetch users"));
+  }
+};
+
+export const verifyEmail = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      throw createError(404, "No user found with this email");
+    }
+
+    res.status(200).json({
+      success: true,
+      data: {
+        securityQuestion: user.securityQuestion,
+      },
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const verifySecurityAnswer = async (req, res, next) => {
+  try {
+    const { email, answer } = req.body;
+    const user = await User.findOne({ email });
+
+    if (!user || user.securityAnswer !== answer.toLowerCase()) {
+      throw createError(400, "Incorrect security answer");
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Security answer verified",
+    });
+  } catch (error) {
+    next(error);
+  }
+};
+
+export const resetPassword = async (req, res, next) => {
+  try {
+    const { email, password } = req.body;
+    const user = await User.findOne({ email });
+
+    user.password = password;
+    await user.save();
+
+    res.status(200).json({
+      success: true,
+      message: "Password reset successful",
+    });
+  } catch (error) {
+    next(error);
   }
 };

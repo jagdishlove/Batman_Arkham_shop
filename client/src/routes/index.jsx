@@ -7,6 +7,7 @@ import Privacy from "@/pages/legal/Privacy";
 import BatmanProductDetail from "@/pages/products/ProductDetail";
 import BatmanLogin from "@/pages/auth/Login";
 import Products from "@/pages/products/Products";
+import { ForgotPassword } from "@/pages/auth/ForgotPassword";
 
 export const publicRoutes = [
   {
@@ -44,5 +45,9 @@ export const publicRoutes = [
   {
     path: "products",
     element: <Products />,
+  },
+  {
+    path: "/forgot-password",
+    element: <ForgotPassword />,
   },
 ];

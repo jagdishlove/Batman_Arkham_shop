@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { Eye, EyeOff, Shield, AlertCircle, CheckCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
 import { useStandardMutation } from "@/lib/useStandardMutation";
 import { post } from "@/lib/http";
 import useAuthStore from "@/store/authStore";
@@ -170,7 +170,7 @@ const BatmanLogin = () => {
                   htmlFor="email"
                   className="block text-gray-400 text-sm mb-3 tracking-wide uppercase"
                 >
-                  Security Clearance ID
+                  Email Address
                 </label>
                 <div className="relative">
                   <input
@@ -188,7 +188,7 @@ const BatmanLogin = () => {
                         ? "border-green-400 focus:border-green-400"
                         : "border-gray-700 focus:border-yellow-400"
                     }`}
-                    placeholder="Enter your access credentials"
+                    placeholder="Enter your Email Address"
                   />
                   {touched.email && (
                     <div className="absolute right-0 top-4">
@@ -213,7 +213,7 @@ const BatmanLogin = () => {
                   htmlFor="password"
                   className="block text-gray-400 text-sm mb-3 tracking-wide uppercase"
                 >
-                  Security Code
+                  Password
                 </label>
                 <div className="relative">
                   <input
@@ -231,7 +231,7 @@ const BatmanLogin = () => {
                         ? "border-green-400 focus:border-green-400"
                         : "border-gray-700 focus:border-yellow-400"
                     }`}
-                    placeholder="Enter your security code"
+                    placeholder="Enter your Password"
                   />
                   <div className="absolute right-0 top-4 flex items-center space-x-2">
                     <button
@@ -291,6 +291,17 @@ const BatmanLogin = () => {
               </div>
             </div>
           </form>
+          <div className="flex items-center justify-between mt-4">
+            <div className="flex items-center">
+              {/* ...existing remember me checkbox... */}
+            </div>
+            <Link
+              to="/forgot-password"
+              className="text-sm text-gray-400 hover:text-yellow-400 transition-colors"
+            >
+              Forgot Password?
+            </Link>
+          </div>
         </div>
 
         {/* Footer */}

@@ -16,6 +16,14 @@ import useAuthStore from "@/store/authStore";
 import { post } from "@/lib/http";
 import { useStandardMutation } from "@/lib/useStandardMutation";
 
+const SECURITY_QUESTIONS = [
+  "What was your first pet's name?",
+  "What city were you born in?",
+  "What is your mother's maiden name?",
+  "What high school did you attend?",
+  "What was your childhood nickname?",
+];
+
 const BatmanSignup = () => {
   const [formData, setFormData] = useState({
     name: "",
@@ -23,6 +31,8 @@ const BatmanSignup = () => {
     password: "",
     confirmPassword: "",
     phone: "",
+    securityQuestion: SECURITY_QUESTIONS[0],
+    securityAnswer: "",
   });
 
   const [showPassword, setShowPassword] = useState(false);
@@ -264,7 +274,7 @@ const BatmanSignup = () => {
 
         {/* Registration Form */}
         <div className="bg-gray-900/50 backdrop-blur-sm border border-gray-800 p-8">
-          <div onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit}>
             <div className="space-y-6">
               {/* Name Field */}
               <div>
@@ -536,6 +546,48 @@ const BatmanSignup = () => {
                 )}
               </div>
 
+              {/* Security Question Field */}
+              <div className="space-y-2">
+                <label className="block text-sm text-gray-400">
+                  Security Question
+                </label>
+                <select
+                  value={formData.securityQuestion}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      securityQuestion: e.target.value,
+                    }))
+                  }
+                  className="w-full px-4 py-2 bg-gray-900/60 border border-gray-800 rounded-lg focus:outline-none focus:border-yellow-500/50"
+                >
+                  {SECURITY_QUESTIONS.map((question) => (
+                    <option key={question} value={question}>
+                      {question}
+                    </option>
+                  ))}
+                </select>
+              </div>
+
+              {/* Security Answer Field */}
+              <div className="space-y-2">
+                <label className="block text-sm text-gray-400">
+                  Security Answer
+                </label>
+                <input
+                  type="text"
+                  value={formData.securityAnswer}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      securityAnswer: e.target.value.toLowerCase(),
+                    }))
+                  }
+                  className="w-full px-4 py-2 bg-gray-900/60 border border-gray-800 rounded-lg focus:outline-none focus:border-yellow-500/50"
+                  required
+                />
+              </div>
+
               {/* Submit Button */}
               <button
                 type="button"
@@ -567,7 +619,7 @@ const BatmanSignup = () => {
                 </button>
               </div>
             </div>
-          </div>
+          </form>
         </div>
 
         {/* Footer */}

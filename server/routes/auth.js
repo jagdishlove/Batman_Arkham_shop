@@ -8,6 +8,9 @@ import {
   toggleUserStatus,
   updatePassword,
   getAllUsers,
+  verifyEmail,
+  verifySecurityAnswer,
+  resetPassword,
 } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -18,6 +21,9 @@ router.post("/login", login);
 router.get("/profile", authenticate, getProfile);
 router.patch("/update-password", authenticate, updatePassword);
 router.patch("/users/deactivate", authenticate, toggleUserStatus);
+router.post("/forgot-password/verify-email", verifyEmail);
+router.post("/forgot-password/verify-security", verifySecurityAnswer);
+router.post("/forgot-password/reset", resetPassword);
 
 // Admin routes
 router.get("/users/stats", authenticate, authorizeAdmin, getTotalUsers);
