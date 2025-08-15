@@ -178,7 +178,7 @@ const BatmanProductDetail = () => {
             </div>
 
             {/* Price */}
-            <div className="flex flex-wrap justify-center items-baseline space-x-4">
+            <div className="flex flex-wrap items-baseline space-x-4">
               <span className="text-3xl font-light text-white">
                 {formatPrice(product?.price)}
               </span>
