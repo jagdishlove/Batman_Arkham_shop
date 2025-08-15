@@ -5,7 +5,7 @@ import { queryClient } from "@/lib/queryClient";
 import Header from "@/components/Layout/Header";
 import Footer from "@/components/Layout/Footer";
 import ScrollToTop from "./components/UI/ScrollToTop";
-import ErrorPage from "./pages/ErrorPage";
+import ErrorPage from "./pages/status/ErrorPage";
 import ToastContainer from "./components/UI/ToastContainer";
 import { publicRoutes } from "./routes";
 import { userRoutes } from "./routes/userRoutes";

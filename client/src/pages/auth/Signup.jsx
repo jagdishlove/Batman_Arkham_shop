@@ -12,10 +12,9 @@ import {
   Lock,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import { useStandardMutation } from "../lib/useStandardMutation";
-import { post } from "../lib/http";
-import useAuthStore from "../store/authStore";
-import toast from "react-hot-toast";
+import useAuthStore from "@/store/authStore";
+import { post } from "@/lib/http";
+import { useStandardMutation } from "@/lib/useStandardMutation";
 
 const BatmanSignup = () => {
   const [formData, setFormData] = useState({

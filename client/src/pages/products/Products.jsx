@@ -2,9 +2,9 @@
 import React, { useState, useMemo, useEffect, useCallback } from "react";
 import { Shield, Search, XCircle } from "lucide-react";
 import { QUERY_KEYS } from "@/constants/queryKeys";
-import { useStandardQuery } from "../lib/useStandardQuery";
-import { get } from "../lib/http";
-import ProductCard from "../components/UI/ProductCard";
+import { useStandardQuery } from "@/lib/useStandardQuery";
+import { get } from "@/lib/http";
+import ProductCard from "@/components/UI/ProductCard";
 
 const ITEMS_PER_PAGE = 12;
 

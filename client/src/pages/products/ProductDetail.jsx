@@ -2,12 +2,12 @@ import { useState, useEffect } from "react";
 import { useParams } from "react-router-dom";
 import { Star, ShoppingCart, ArrowLeft, Shield, Zap } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-import useCartStore from "../store/cartStore";
+import useCartStore from "../../store/cartStore";
 import { batmanToast } from "@/utils/toast";
-import { get } from "../lib/http";
-import { QUERY_KEYS } from "../constants/queryKeys";
-import { useStandardQuery } from "../lib/useStandardQuery";
-import { formatPrice } from "../utils";
+import { get } from "../../lib/http";
+import { QUERY_KEYS } from "../../constants/queryKeys";
+import { useStandardQuery } from "../../lib/useStandardQuery";
+import { formatPrice } from "../../utils";
 import useAuthStore from "@/store/authStore";
 
 const BatmanProductDetail = () => {

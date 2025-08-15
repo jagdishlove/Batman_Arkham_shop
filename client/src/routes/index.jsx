@@ -1,12 +1,12 @@
-import Home from "@/pages/Home";
-import BatmanLogin from "../pages/Login";
-import BatmanSignup from "../pages/Signup";
-import BatmanProductDetail from "../pages/ProductDetail";
-import ContactUs from "../pages/ContactUs";
-import Privacy from "../pages/Privacy";
-import TermsOfService from "../pages/TermsOfService";
-import Faq from "../pages/Faq";
-import Products from "@/pages/Products";
+import Home from "@/pages/home/Home";
+import BatmanSignup from "@/pages/auth/Signup";
+import ContactUs from "@/pages/support/ContactUs";
+import Faq from "@/pages/support/Faq";
+import TermsOfService from "@/pages/legal/TermsOfService";
+import Privacy from "@/pages/legal/Privacy";
+import BatmanProductDetail from "@/pages/products/ProductDetail";
+import BatmanLogin from "@/pages/auth/Login";
+import Products from "@/pages/products/Products";
 
 export const publicRoutes = [
   {

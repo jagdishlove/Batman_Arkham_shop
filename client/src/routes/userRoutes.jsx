@@ -1,9 +1,8 @@
-import Cart from "@/pages/Cart";
-import Checkout from "@/pages/Checkout";
-import OrderConfirmation from "@/pages/OrderConfirmation";
-import OrderHistory from "../pages/OrderHistory";
-import Products from "../pages/Products";
-import Profile from "../pages/Profile";
+import Cart from "@/pages/checkout/Cart";
+import Checkout from "@/pages/checkout/Checkout";
+import OrderConfirmation from "@/pages/checkout/OrderConfirmation";
+import OrderHistory from "../pages/user/OrderHistory";
+import Profile from "../pages/user/Profile";
 
 export const userRoutes = [
   {

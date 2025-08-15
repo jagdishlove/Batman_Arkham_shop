@@ -1,7 +1,7 @@
 import { ShoppingBag, Truck, Shield, Zap, Eye, Moon, Star } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { Link, useNavigate } from "react-router-dom";
-import useAuthStore from "../store/authStore";
+import useAuthStore from "../../store/authStore";
 import { batmanToast } from "@/utils/toast";
 import "@/styles/home.css";
 import { QUERY_KEYS } from "@/constants/queryKeys";
