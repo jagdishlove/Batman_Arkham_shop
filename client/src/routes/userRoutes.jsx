@@ -11,10 +11,6 @@ export const userRoutes = [
     element: <Cart />,
   },
   {
-    path: "products",
-    element: <Products />,
-  },
-  {
     path: "checkout",
     element: <Checkout />,
   },

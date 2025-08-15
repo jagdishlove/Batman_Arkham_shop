@@ -8,6 +8,7 @@ import { get } from "../lib/http";
 import { QUERY_KEYS } from "../constants/queryKeys";
 import { useStandardQuery } from "../lib/useStandardQuery";
 import { formatPrice } from "../utils";
+import useAuthStore from "@/store/authStore";
 
 const BatmanProductDetail = () => {
   const { id: productId } = useParams();
@@ -15,6 +16,7 @@ const BatmanProductDetail = () => {
   const [quantity, setQuantity] = useState(1);
   const navigate = useNavigate();
   const { addToCart, getAvailableStock, setInitialStock } = useCartStore();
+  const { isAuthenticated } = useAuthStore();
 
   // Reset selected image when product changes
   useEffect(() => {
@@ -84,6 +86,11 @@ const BatmanProductDetail = () => {
   };
 
   const handleAddToCart = () => {
+    if (!isAuthenticated) {
+      batmanToast.error("Please login to view product details");
+      navigate("/login");
+      return;
+    }
     const success = addToCart(product);
     if (success) {
       batmanToast.success("Added to loadout");

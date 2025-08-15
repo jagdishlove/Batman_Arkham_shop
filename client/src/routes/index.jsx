@@ -6,6 +6,7 @@ import ContactUs from "../pages/ContactUs";
 import Privacy from "../pages/Privacy";
 import TermsOfService from "../pages/TermsOfService";
 import Faq from "../pages/Faq";
+import Products from "@/pages/Products";
 
 export const publicRoutes = [
   {
@@ -39,5 +40,9 @@ export const publicRoutes = [
   {
     path: "/faq",
     element: <Faq />,
+  },
+  {
+    path: "products",
+    element: <Products />,
   },
 ];

@@ -174,11 +174,6 @@ const Home = () => {
   }, []);
 
   const handleProductClick = (productId) => {
-    if (!isAuthenticated) {
-      batmanToast.error("Please login to view product details");
-      navigate("/login");
-      return;
-    }
     navigate(`/products/${productId}`);
   };
 
