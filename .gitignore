@@ -28,6 +28,8 @@ client/.env
 server/.env
 .history
 package-lock.json
+client/package-lock.json
+server/package-lock.json
 
 # IDEs and editors
 .vscode/*
