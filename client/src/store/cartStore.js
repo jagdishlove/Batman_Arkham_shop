@@ -1,5 +1,5 @@
 import { create } from "zustand";
-import { persist } from "zustand/middleware";
+import { persist, createJSONStorage } from "zustand/middleware";
 
 const useCartStore = create(
   persist(
@@ -54,9 +54,9 @@ const useCartStore = create(
       },
 
       // Fix removeFromCart implementation
-      removeFromCart: (productId) => 
+      removeFromCart: (productId) =>
         set((state) => ({
-          items: state.items.filter(item => item.id !== productId)
+          items: state.items.filter((item) => item.id !== productId),
         })),
 
       updateQuantity: (productId, quantity) =>
@@ -119,7 +119,7 @@ const useCartStore = create(
     }),
     {
       name: "cart-storage",
-      getStorage: () => localStorage,
+      storage: createJSONStorage(() => localStorage),
     }
   )
 );
