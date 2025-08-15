@@ -193,3 +193,19 @@ export const toggleUserStatus = async (req, res, next) => {
     next(error);
   }
 };
+
+export const getAllUsers = async (req, res, next) => {
+  try {
+    const users = await User.find()
+      .select('-password')
+      .sort({ createdAt: -1 })
+      .lean();
+
+    res.status(200).json({
+      success: true,
+      data: users
+    });
+  } catch (error) {
+    next(createError(500, "Failed to fetch users"));
+  }
+};

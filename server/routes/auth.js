@@ -7,6 +7,7 @@ import {
   getTotalUsers,
   toggleUserStatus,
   updatePassword,
+  getAllUsers,
 } from "../controllers/authController.js";
 
 const router = express.Router();
@@ -20,5 +21,6 @@ router.patch("/users/deactivate", authenticate, toggleUserStatus);
 
 // Admin routes
 router.get("/users/stats", authenticate, authorizeAdmin, getTotalUsers);
+router.get("/users", authenticate, authorizeAdmin, getAllUsers);
 
 export default router;

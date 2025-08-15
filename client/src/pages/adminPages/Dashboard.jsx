@@ -6,6 +6,7 @@ import {
   ShoppingCart,
   PlusCircle,
   UserCheck,
+  MessagesSquare,
 } from "lucide-react";
 import { get } from "../../lib/http";
 import { useStandardQuery } from "../../lib/useStandardQuery";
@@ -13,6 +14,8 @@ import { QUERY_KEYS } from "../../constants/queryKeys";
 import { ProductsSection } from "./ProductSection";
 import { useQueryClient } from "@tanstack/react-query";
 import OrderSection from "./OrderSection";
+import ContactSection from "./components/ContactSection";
+import UserProfile from "@/components/Profile/UserProfile";
 
 const Dashboard = () => {
   const [activeTab, setActiveTab] = useState("products");
@@ -105,22 +108,9 @@ const Dashboard = () => {
           />
         );
       case "users":
-        return (
-          <div className="text-white">
-            {usersLoading ? (
-              "Loading users..."
-            ) : usersError ? (
-              "Error loading users"
-            ) : (
-              <div>
-                <h3 className="text-xl font-bold mb-4">User Statistics</h3>
-                <div className="space-y-2">
-                  <p>Total Users: {usersStats?.total || 0}</p>
-                </div>
-              </div>
-            )}
-          </div>
-        );
+        return <UserProfile />;
+      case "contacts":
+        return <ContactSection />;
       default:
         return <div>Select a tab</div>;
     }
@@ -201,6 +191,18 @@ const Dashboard = () => {
                 >
                   <Users className="h-5 w-5" />
                   <span>Users</span>
+                </button>
+                <button
+                  onClick={() => setActiveTab("contacts")}
+                  className={`flex w-full items-center gap-3 px-4 py-3 rounded-lg transition-all duration-300
+                    ${
+                      activeTab === "contacts"
+                        ? "text-yellow-400 bg-gray-800/50"
+                        : "text-gray-300 hover:text-yellow-400 hover:bg-gray-800/50"
+                    }`}
+                >
+                  <MessagesSquare className="h-5 w-5" />
+                  <span>Messages</span>
                 </button>
               </nav>
             </div>

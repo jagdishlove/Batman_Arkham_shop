@@ -1,6 +1,8 @@
 import { useState } from "react";
 import { Mail, Phone, MapPin, Send, Shield, AlertTriangle } from "lucide-react";
 import { batmanToast } from "@/utils/toast";
+import { useStandardMutation } from "@/lib/useStandardMutation";
+import { post } from "@/lib/http";
 
 const ContactUs = () => {
   const [formData, setFormData] = useState({
@@ -9,28 +11,22 @@ const ContactUs = () => {
     subject: "",
     message: "",
   });
-  const [isSubmitting, setIsSubmitting] = useState(false);
+  const contactPost = (data) => post("/contact/submit", data);
+
+  const { mutate, isPending } = useStandardMutation(contactPost, {
+    successMsg: "Message received successfully",
+    errorMsg: "Communication failed",
+    onMutate: () => {
+      batmanToast.loading("Transmitting message to Batcave...");
+    },
+    onSuccess: () => {
+      setFormData({ name: "", email: "", subject: "", message: "" });
+    },
+  });
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setIsSubmitting(true);
-
-    // Simulate form submission
-    const loadingToast = batmanToast.loading(
-      "Transmitting message to Batcave..."
-    );
-
-    try {
-      await new Promise((resolve) => setTimeout(resolve, 2000));
-      batmanToast.success("Message received successfully", {
-        id: loadingToast,
-      });
-      setFormData({ name: "", email: "", subject: "", message: "" });
-    } catch (error) {
-      batmanToast.error("Communication failed", { id: loadingToast });
-    } finally {
-      setIsSubmitting(false);
-    }
+    mutate(formData);
   };
 
   return (
@@ -179,14 +175,14 @@ const ContactUs = () => {
 
             <button
               type="submit"
-              disabled={isSubmitting}
+              disabled={isPending}
               className={`w-full flex items-center justify-center gap-2 px-6 py-3 rounded-lg font-medium transition-all duration-300 ${
-                isSubmitting
+                isPending
                   ? "bg-gray-700 cursor-not-allowed"
                   : "bg-gradient-to-r from-yellow-400 to-orange-500 hover:opacity-90 text-black"
               }`}
             >
-              {isSubmitting ? (
+              {isPending ? (
                 <>
                   <div className="h-5 w-5 border-2 border-gray-400 border-t-transparent rounded-full animate-spin"></div>
                   SENDING...
